@@ -80,6 +80,7 @@ namespace QuickHtml
             {
                 Trace("rmdir", "/*.*");
                 Directory.Delete(dist_folder, true);
+                System.Threading.Thread.Sleep(10);
             }
             catch { }
 
