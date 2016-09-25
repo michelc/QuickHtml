@@ -1,0 +1,39 @@
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac crap
+.DS_Store
+
+# Visual Studio specific files
+.vs/
+*.suo
+*.user
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Test results
+[Tt]est[Rr]esults/
+
+# NuGet Packages directory
+packages/
+
+# Data information
+[Aa]pp_[Dd]ata/
+*.secret
+
+# Personnal temp files
+_temp/
+_*.*
+*.bak
+*.rar
+*.zip
+* - Copie.*
