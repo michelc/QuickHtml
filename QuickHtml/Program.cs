@@ -11,7 +11,7 @@ namespace QuickHtml
         public const string layout_name = "layout.html";
         public static CommonMarkSettings md_settings;
 
-        public const string log_file = "QuickHtml.log";
+        public const string log_file = "qh.log";
         public static string log_buffer = "";
         public static StreamWriter log_writer;
 
@@ -20,7 +20,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"C:\MVC\sp" };
+                args = new[] { @"C:\MVC\saint-privat-qh\src" };
             }
 
             // Echo
@@ -126,21 +126,9 @@ namespace QuickHtml
 
         private static string GetSrcFolder(string[] args)
         {
-            // Get source folder from command line
-            var src_folder = "";
-            if (args.Length > 0)
-            {
-                src_folder = Path.GetFullPath(args[0]);
-                if (!File.Exists(Path.Combine(src_folder, layout_name)))
-                {
-                    // Invalid source folder
-                    src_folder = "!" + src_folder;
-                    return src_folder;
-                }
-            }
-
-            // Use default source folder
-            src_folder = Directory.GetCurrentDirectory();
+            // Get source folder
+            var src_folder = Directory.GetCurrentDirectory();
+            if (args.Length > 0) src_folder = args[0];
             src_folder = Path.GetFullPath(src_folder);
 
             // Check source folder
@@ -152,14 +140,6 @@ namespace QuickHtml
             {
                 // Source folder was actually the project folder
                 // => get the src subfolder
-                src_folder = Path.Combine(src_folder, "src");
-            }
-            else if (File.Exists(Path.Combine(src_folder, "..", "src", layout_name)))
-            {
-                // Source folder was actually a project subfolder
-                // => get the project folder
-                src_folder = Directory.GetParent(src_folder).FullName;
-                // => then the src subfolder
                 src_folder = Path.Combine(src_folder, "src");
             }
             else
@@ -181,11 +161,22 @@ namespace QuickHtml
             // Check distribution folder
             if (Directory.Exists(dist_folder))
             {
-                if (!File.Exists(Path.Combine(dist_folder, log_file)))
+                if (File.Exists(Path.Combine(dist_folder, log_file)))
+                {
+                    // Distribution folder is actually the distribution folder
+                }
+                else if (File.Exists(Path.Combine(dist_folder, "dist", log_file)))
+                {
+                    // Distribution folder was actually the project folder
+                    // => get the distribution subfolder
+                    dist_folder = Path.Combine(dist_folder, "dist");
+                }
+                else
                 {
                     // Invalid distribution folder
                     dist_folder = "!" + dist_folder;
                 }
+
             }
 
             return dist_folder;
