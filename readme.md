@@ -143,6 +143,9 @@ The sitemap template uses 3 specific "variables":
 * `{{ changefreq }}` for page modification frequency (daily, weekly or monthly)
 * `{{ priority }}` for page priority (a value between 0.0 to 1.0)
 
+Variables `changefreq` and `priority` can also be defined at the page level to
+accept values specific to a page.
+
 
 ## Using QuickHtml
 

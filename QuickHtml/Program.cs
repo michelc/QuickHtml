@@ -350,11 +350,16 @@ namespace QuickHtml
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
+                    // Set url change frequency
+                    var page = LoadMarkdown(file);
+                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq;
+                    // Set url priority
+                    var priority = page.Meta.priority ?? md.Meta.priority;
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
-                                      .Replace("{{ changefreq }}", md.Meta.changefreq)
-                                      .Replace("{{ priority }}", md.Meta.priority);
+                                      .Replace("{{ changefreq }}", changefreq)
+                                      .Replace("{{ priority }}", priority);
                     urls.Add(url);
                 }
             }
