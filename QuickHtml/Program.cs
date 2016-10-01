@@ -267,47 +267,11 @@ namespace QuickHtml
 
         private static void WriteHtml(string source, string destination, string layout, bool sub)
         {
-            // Get source content
-            var lines = File.ReadAllLines(source);
-
-            // Parse source content
-            var meta = 0;
-            var title = "";
-            var index = "";
-            var id = "";
-            var markdown = "";
-            foreach (var line in lines)
-            {
-                var text = line.Trim();
-                switch (meta)
-                {
-                    case 0:
-                        if (text == "---")
-                            meta++;
-                        break;
-                    case 1:
-                        if (text == "---")
-                            meta++;
-                        else if (text.ToLower().StartsWith("title: "))
-                            title = text.Substring(7).Trim();
-                        else if (text.ToLower().StartsWith("index: "))
-                            index = text.Substring(7).Trim();
-                        else if (text.ToLower().StartsWith("id: "))
-                            id = text.Substring(4).Trim();
-                        break;
-                    default:
-                        markdown += text + Environment.NewLine;
-                        break;
-                }
-            }
-
-            // Check meta content
-            if (index == "") index = title;
-            title = FrenchChars(title);
-            index = FrenchChars(index);
+            // Load markdown source 
+            var md = LoadMarkdown(source);
 
             // Convert markdown to html
-            var content = MarkdownToHtml(markdown);
+            var content = MarkdownToHtml(md.Body);
 
             // Temporary hack
             content = content.Replace("<p><img ", "  <img ");
@@ -328,9 +292,9 @@ namespace QuickHtml
 
             // Meta substitition
             var html = layout.Replace("{{ content }}", content);
-            html = html.Replace("{{ title }}", title);
-            html = html.Replace("{{ index }}", index);
-            html = html.Replace("{{ id }}", id);
+            html = html.Replace("{{ title }}", md.Meta["title"]);
+            html = html.Replace("{{ index }}", md.Meta["index"]);
+            html = html.Replace("{{ id }}", md.Meta["id"]);
 
             // Subfolders path
             if (sub)
@@ -345,7 +309,45 @@ namespace QuickHtml
             File.WriteAllText(destination, html);
         }
 
-        public static string FrenchChars(string text)
+        public static MarkdownSource LoadMarkdown(string file)
+        {
+            // Get file content
+            var lines = File.ReadAllLines(file);
+
+            // Parse file content
+            var md = new MarkdownSource();
+            var meta = 0;
+            foreach (var line in lines)
+            {
+                var text = line.Trim();
+                switch (meta)
+                {
+                    case 0:
+                        if (text == "---")
+                            meta++;
+                        break;
+                    case 1:
+                        var split = text.IndexOf(": ");
+                        if (text == "---")
+                            meta++;
+                        else if (split > 0)
+                            md.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+                        break;
+                    default:
+                        md.Body += text + Environment.NewLine;
+                        break;
+                }
+            }
+
+            // Check meta content
+            md.Meta["title"] = md.Meta.ContainsKey("title") ? FrenchChars(md.Meta["title"]) : "";
+            md.Meta["index"] = md.Meta.ContainsKey("index") ? FrenchChars(md.Meta["index"]) : md.Meta["title"];
+            md.Meta["id"] = md.Meta.ContainsKey("id") ? md.Meta["id"] : "";
+
+            return md;
+        }
+
+        public static string FrenchChars(string text = "")
         {
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
@@ -438,6 +440,18 @@ namespace QuickHtml
                 log_writer.Write(log_buffer);
                 log_buffer = "";
             }
+        }
+    }
+
+    public class MarkdownSource
+    {
+        public Dictionary<string, string> Meta { get; set; }
+        public string Body { get; set; }
+
+        public MarkdownSource()
+        {
+            this.Meta = new Dictionary<string, string>();
+            this.Body = "";
         }
     }
 }
