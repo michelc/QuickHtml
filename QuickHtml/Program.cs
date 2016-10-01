@@ -334,6 +334,9 @@ namespace QuickHtml
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
 
+            // Check site url 
+            if (!md.Meta.url.EndsWith("/")) md.Meta.url += "/";
+
             // Build url list
             var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
             var urls = new List<string>();
@@ -352,9 +355,9 @@ namespace QuickHtml
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
                     // Set url change frequency
                     var page = LoadMarkdown(file);
-                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq;
+                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq ?? "yearly";
                     // Set url priority
-                    var priority = page.Meta.priority ?? md.Meta.priority;
+                    var priority = page.Meta.priority ?? md.Meta.priority ?? "1.0";
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
