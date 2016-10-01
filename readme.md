@@ -162,6 +162,10 @@ Static files are copied when:
 
 All other files are restricted files and are not copied to the `dist` folder.
 
+Note: a "png" file is not copied when there is a "jpg" file with the same name
+in the same folder. In this case, QuickHtml considers the jpeg image is the
+optimized version of the png image.
+
 ### Deploy website
 
 Once the `dist` folder is generated, you have to copy its content to your
