@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -310,9 +311,9 @@ namespace QuickHtml
 
             // Meta substitition
             var html = layout.Replace("{{ content }}", content);
-            html = html.Replace("{{ title }}", md.Meta["title"]);
-            html = html.Replace("{{ index }}", md.Meta["index"]);
-            html = html.Replace("{{ id }}", md.Meta["id"]);
+            html = html.Replace("{{ title }}", md.Meta.title);
+            html = html.Replace("{{ index }}", md.Meta.index);
+            html = html.Replace("{{ id }}", md.Meta.id);
 
             // Subfolders path
             if (sub)
@@ -342,17 +343,17 @@ namespace QuickHtml
                     // Set url location
                     var loc = ShortName(file, src_folder).Substring(1);
                     if (loc == "index.md")
-                        loc = md.Meta["url"];
+                        loc = md.Meta.url;
                     else
-                        loc = md.Meta["url"] + loc.Substring(0, loc.Length - 2) + "html";
+                        loc = md.Meta.url + loc.Substring(0, loc.Length - 2) + "html";
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
-                                      .Replace("{{ changefreq }}", md.Meta["changefreq"])
-                                      .Replace("{{ priority }}", md.Meta["priority"]);
+                                      .Replace("{{ changefreq }}", md.Meta.changefreq)
+                                      .Replace("{{ priority }}", md.Meta.priority);
                     urls.Add(url);
                 }
             }
@@ -365,13 +366,13 @@ namespace QuickHtml
             File.WriteAllText(destination, xml);
         }
 
-        public static MarkdownSource LoadMarkdown(string file)
+        public static QuickMarkdown LoadMarkdown(string file)
         {
             // Get file content
             var lines = File.ReadAllLines(file);
 
             // Parse file content
-            var md = new MarkdownSource();
+            var md = new QuickMarkdown();
             var meta = 0;
             foreach (var line in lines)
             {
@@ -395,15 +396,16 @@ namespace QuickHtml
             }
 
             // Check meta content
-            md.Meta["title"] = md.Meta.ContainsKey("title") ? FrenchChars(md.Meta["title"]) : "";
-            md.Meta["index"] = md.Meta.ContainsKey("index") ? FrenchChars(md.Meta["index"]) : md.Meta["title"];
-            md.Meta["id"] = md.Meta.ContainsKey("id") ? md.Meta["id"] : "";
+            md.Meta.title = FrenchChars(md.Meta.title);
+            md.Meta.index = FrenchChars(md.Meta.index) ?? md.Meta.title;
 
             return md;
         }
 
-        public static string FrenchChars(string text = "")
+        public static string FrenchChars(string text)
         {
+            if (text == null) return text;
+
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
 
@@ -498,14 +500,14 @@ namespace QuickHtml
         }
     }
 
-    public class MarkdownSource
+    public class QuickMarkdown
     {
-        public Dictionary<string, string> Meta { get; set; }
+        public dynamic Meta { get; set; }
         public string Body { get; set; }
 
-        public MarkdownSource()
+        public QuickMarkdown()
         {
-            this.Meta = new Dictionary<string, string>();
+            this.Meta = new QuickDynamic();
             this.Body = "";
         }
 
@@ -521,6 +523,31 @@ namespace QuickHtml
             if (split <= 0) return;
 
             this.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+        }
+    }
+
+    public class QuickDynamic : DynamicObject
+    {
+        Dictionary<string, object> list = new Dictionary<string, object>();
+
+        public void Add(string key, object value)
+        {
+            this.list[key] = value;
+        }
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            if (!this.list.ContainsKey(binder.Name))
+                this.list[binder.Name] = null;
+
+            return this.list.TryGetValue(binder.Name, out result);
+        }
+
+        public override bool TrySetMember(SetMemberBinder binder, object value)
+        {
+            this.list[binder.Name] = value;
+
+            return true;
         }
     }
 }
