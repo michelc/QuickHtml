@@ -292,11 +292,6 @@ namespace QuickHtml
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body);
 
-            // Temporary hack
-            content = content.Replace("<p><img ", "  <img ");
-            content = content.Replace(" /></p>", ">");
-            content = content.Replace(" alt=\"\"", "");
-
             // Quick and dirty format
             content = content.Trim();
             content = content.Replace("<h", Environment.NewLine + "<h");
