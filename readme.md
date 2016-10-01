@@ -25,7 +25,7 @@ Project
 |   |-- page1.md
 |   |-- page2.md
 |   |-- robots.txt
-|   ·-- sitemap.xml
+|   ·-- sitemap.md
 |-- tools
 |   ·-- qh.bat
 |-- .gitattributes
@@ -110,6 +110,39 @@ will be used an no error occurs.
 will be used to replace it.
 
 
+## Misc
+
+### sitemap.md
+
+When `src` folder contains a file named "sitemap.md", QuickHtml will use it as
+a template to generate "sitemap.xml" in the `dist` folder.
+
+A correct template to generate a standards-compliant site map shoul be:
+
+```
+---
+url: https://www.my-site.com/
+changefreq: monthly
+priority: 1.0
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{{ loc }}</loc>
+    <lastmod>{{ lastmod }}</lastmod>
+    <changefreq>{{ changefreq }}</changefreq>
+    <priority>{{ priority }}</priority>
+  </url>
+</urlset>
+```
+
+The sitemap template uses 3 specific "variables":
+
+* `{{ url }}` to define the website domain,
+* `{{ changefreq }}` for page modification frequency (daily, weekly or monthly)
+* `{{ priority }}` for page priority (a value between 0.0 to 1.0)
+
+
 ## Using QuickHtml
 
 ### Generate `dist` website
@@ -118,6 +151,7 @@ Run `qh.bat` from tools folder and QuickHtml process all files in the `src`
 folder to generate the `dist` content.
 
 * Combine "layout.html" and "markdown" files to create "html" files,
+* Build "sitemap.xml" from "sitemap.md" and markdown files list,
 * Simply copy all other "static" files,
 * Do not copy restricted files.
 

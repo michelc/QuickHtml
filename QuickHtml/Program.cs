@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using CommonMark;
 
 namespace QuickHtml
@@ -9,6 +11,7 @@ namespace QuickHtml
     public class Program
     {
         public const string layout_name = "layout.html";
+        public const string sitemap_name = "sitemap.md";
         public static CommonMarkSettings md_settings;
 
         public const string log_file = "qh.log";
@@ -95,6 +98,7 @@ namespace QuickHtml
             // Copy all files
             var files = GetAllFiles(src_folder);
             files = CheckFiles(files);
+            var sitemap = false;
             foreach (var file in files)
             {
                 // Create dist folder and subfolders
@@ -115,6 +119,13 @@ namespace QuickHtml
                     continue;
                 }
 
+                // Omit sitemap.md
+                if (file.EndsWith(sitemap_name))
+                {
+                    sitemap = true;
+                    continue;
+                }
+
                 // Copy file from src to dist
                 var destination = file.Replace(src_folder, dist_folder);
                 var sub = (src_dir != src_folder);
@@ -122,6 +133,13 @@ namespace QuickHtml
 
                 // Trace file copy/build
                 Trace(result, ShortName(file, src_folder));
+            }
+
+            // Create sitemap
+            if (sitemap)
+            {
+                WriteSitemap(files, src_folder, dist_folder);
+                Trace("WRITE", "/" + sitemap_name);
             }
         }
 
@@ -307,6 +325,44 @@ namespace QuickHtml
             // Create html file
             destination = destination.Substring(0, destination.Length - 2) + "html";
             File.WriteAllText(destination, html);
+        }
+
+        private static void WriteSitemap(List<string> files, string src_folder, string dist_folder)
+        {
+            // Load markdown sitemap
+            var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
+
+            // Build url list
+            var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
+            var urls = new List<string>();
+            foreach (var file in files.Where(f => f.EndsWith(".md")))
+            {
+                if (!file.EndsWith(sitemap_name))
+                {
+                    // Set url location
+                    var loc = ShortName(file, src_folder).Substring(1);
+                    if (loc == "index.md")
+                        loc = md.Meta["url"];
+                    else
+                        loc = md.Meta["url"] + loc.Substring(0, loc.Length - 2) + "html";
+                    // Set url last modification
+                    var f = new FileInfo(file);
+                    var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
+                    // Add url
+                    var url = template.Replace("{{ loc }}", loc)
+                                      .Replace("{{ lastmod }}", lastmod)
+                                      .Replace("{{ changefreq }}", md.Meta["changefreq"])
+                                      .Replace("{{ priority }}", md.Meta["priority"]);
+                    urls.Add(url);
+                }
+            }
+
+            // Set xml content
+            var xml = md.Body.Replace(template, string.Join("", urls.OrderBy(u => u)));
+
+            // Create sitemap.xml file
+            var destination = Path.Combine(dist_folder, sitemap_name.Replace(".md", ".xml"));
+            File.WriteAllText(destination, xml);
         }
 
         public static MarkdownSource LoadMarkdown(string file)
