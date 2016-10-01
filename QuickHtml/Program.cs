@@ -244,7 +244,7 @@ namespace QuickHtml
 
         static string CopyFile(string source, string destination, string layout, bool sub)
         {
-            if (source.EndsWith("!!")) return " pass";
+            if (source.EndsWith("!!")) return "   no";
             var result = "";
             var f = new FileInfo(source);
             switch (f.Extension)
@@ -277,7 +277,7 @@ namespace QuickHtml
                     else
                     {
                         // All other files are not copied to dest folder
-                        result = "WARNING: *** {0} has no valid file extension ***";
+                        result = "ALERT: *** {0} has no valid file extension ***";
                     }
                     break;
             }
