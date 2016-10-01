@@ -94,6 +94,7 @@ namespace QuickHtml
 
             // Copy all files
             var files = GetAllFiles(src_folder);
+            files = CheckFiles(files);
             foreach (var file in files)
             {
                 // Create dist folder and subfolders
@@ -182,7 +183,7 @@ namespace QuickHtml
             return dist_folder;
         }
 
-        private static string[] GetAllFiles(string folder)
+        private static List<string> GetAllFiles(string folder)
         {
             var list = new List<string>();
 
@@ -198,11 +199,33 @@ namespace QuickHtml
                 list.AddRange(GetAllFiles(dir));
             }
 
-            return list.ToArray();
+            return list;
+        }
+
+        private static List<string> CheckFiles(List<string> files)
+        {
+            var list = new List<string>();
+
+            foreach (var file in files)
+            {
+                if (file.EndsWith(".png"))
+                {
+                    var jpeg = file.Substring(0, file.Length - 4) + ".jpg";
+                    if (files.Exists(f => f == jpeg))
+                    {
+                        list.Add(file + "!!");
+                        continue;
+                    }
+                }
+                list.Add(file);
+            }
+
+            return list;
         }
 
         static string CopyFile(string source, string destination, string layout, bool sub)
         {
+            if (source.EndsWith("!!")) return " pass";
             var result = "";
             var f = new FileInfo(source);
             switch (f.Extension)
@@ -384,6 +407,7 @@ namespace QuickHtml
         private static string ShortName(string fullname, string folder)
         {
             var name = fullname.Substring(folder.Length).Replace(@"\", "/");
+            if (name.EndsWith("!!")) name = name.Substring(0, name.Length - 2);
             if (name == "") name = "/";
 
             return name;
