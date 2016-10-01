@@ -68,10 +68,11 @@ content from the `src` folder.
 ### layout.html
 
 This a pure html file which contains the template for all the pages of your
-website. Inside this html code, you can use 3 "variables" data to personalize
+website. Inside this html code, you can use 4 "variables" data to personalize
 the content of the final page.
 
 * `{{ title }}` define the current page title,
+* `{{ description }}` is the content for the description meta header,
 * `{{ index }}` should be a title for the index page in the current folder,
 * `{{ id }}` can be used to identify the page.
 

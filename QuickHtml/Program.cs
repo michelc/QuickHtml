@@ -24,7 +24,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"C:\MVC\Francus" };
+                args = new[] { @"C:\MVC\saint-privat-qh" };
             }
 
             // Echo
@@ -314,6 +314,7 @@ namespace QuickHtml
             html = html.Replace("{{ title }}", md.Meta.title);
             html = html.Replace("{{ index }}", md.Meta.index);
             html = html.Replace("{{ id }}", md.Meta.id);
+            html = html.Replace("{{ description }}", md.Meta.description);
 
             // Subfolders path
             if (sub)
