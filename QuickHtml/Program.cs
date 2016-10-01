@@ -383,14 +383,13 @@ namespace QuickHtml
                             meta++;
                         break;
                     case 1:
-                        var split = text.IndexOf(": ");
                         if (text == "---")
                             meta++;
-                        else if (split > 0)
-                            md.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+                        else
+                            md.AddMeta(text);
                         break;
                     default:
-                        md.Body += line + Environment.NewLine;
+                        md.AddLine(line);
                         break;
                 }
             }
@@ -508,6 +507,20 @@ namespace QuickHtml
         {
             this.Meta = new Dictionary<string, string>();
             this.Body = "";
+        }
+
+        public void AddLine(string line)
+        {
+            if (this.Body != "") this.Body += Environment.NewLine;
+            this.Body += line;
+        }
+
+        public void AddMeta(string text)
+        {
+            var split = text.IndexOf(": ");
+            if (split <= 0) return;
+
+            this.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
         }
     }
 }
