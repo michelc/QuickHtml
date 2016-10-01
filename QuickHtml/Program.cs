@@ -334,7 +334,7 @@ namespace QuickHtml
                             md.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
                         break;
                     default:
-                        md.Body += text + Environment.NewLine;
+                        md.Body += line + Environment.NewLine;
                         break;
                 }
             }
