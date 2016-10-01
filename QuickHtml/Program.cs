@@ -216,15 +216,27 @@ namespace QuickHtml
                 case ".png":
                 case ".txt":
                 case ".xml":
+                    // Copy files with specific extensions
                     File.Copy(source, destination);
                     result = " copy";
                     break;
                 case ".md":
+                    // Create html files from markdown files
                     WriteHtml(source, destination, layout, sub);
                     result = "WRITE";
                     break;
                 default:
-                    result = "WARNING: *** {0} has no valid file extension ***";
+                    if (!sub)
+                    {
+                        // Copy all files from src root
+                        File.Copy(source, destination);
+                        result = " copy";
+                    }
+                    else
+                    {
+                        // All other files are not copied to dest folder
+                        result = "WARNING: *** {0} has no valid file extension ***";
+                    }
                     break;
             }
             return result;
