@@ -20,7 +20,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"C:\MVC\saint-privat-qh\src" };
+                args = new[] { @"C:\MVC\Francus" };
             }
 
             // Echo
@@ -250,7 +250,7 @@ namespace QuickHtml
             // Parse source content
             var meta = 0;
             var title = "";
-            var main = "";
+            var index = "";
             var id = "";
             var markdown = "";
             foreach (var line in lines)
@@ -267,8 +267,8 @@ namespace QuickHtml
                             meta++;
                         else if (text.ToLower().StartsWith("title: "))
                             title = text.Substring(7).Trim();
-                        else if (text.ToLower().StartsWith("main: "))
-                            main = text.Substring(6).Trim();
+                        else if (text.ToLower().StartsWith("index: "))
+                            index = text.Substring(7).Trim();
                         else if (text.ToLower().StartsWith("id: "))
                             id = text.Substring(4).Trim();
                         break;
@@ -279,9 +279,9 @@ namespace QuickHtml
             }
 
             // Check meta content
-            if (main == "") main = title;
+            if (index == "") index = title;
             title = FrenchChars(title);
-            main = FrenchChars(main);
+            index = FrenchChars(index);
 
             // Convert markdown to html
             var content = MarkdownToHtml(markdown);
@@ -306,7 +306,7 @@ namespace QuickHtml
             // Meta substitition
             var html = layout.Replace("{{ content }}", content);
             html = html.Replace("{{ title }}", title);
-            html = html.Replace("{{ main }}", main);
+            html = html.Replace("{{ index }}", index);
             html = html.Replace("{{ id }}", id);
 
             // Subfolders path
