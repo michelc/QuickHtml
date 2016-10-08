@@ -24,7 +24,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"C:\MVC\saint-privat-qh" };
+                args = new[] { @"\MVC\Francus" };
             }
 
             // Echo
@@ -329,10 +329,8 @@ namespace QuickHtml
                 {
                     // Set url location
                     var loc = ShortName(file, src_folder).Substring(1);
-                    if (loc == "index.md")
-                        loc = md.Meta.url;
-                    else
-                        loc = md.Meta.url + loc.Substring(0, loc.Length - 2) + "html";
+                    loc = md.Meta.url + loc.Substring(0, loc.Length - 2) + "html";
+                    loc = loc.Replace("/index.html", "/");
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
