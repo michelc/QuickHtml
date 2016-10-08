@@ -292,18 +292,6 @@ namespace QuickHtml
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body);
 
-            // Quick and dirty format
-            content = content.Trim();
-            content = content.Replace("<h", Environment.NewLine + "<h");
-            content = content.Replace("<p", Environment.NewLine + "<p");
-            content = content.Replace("<ul", Environment.NewLine + "<ul");
-            content = content.Replace("<ol", Environment.NewLine + "<ol");
-            content = content.Replace("<li", "  <li");
-            content = content.Replace("<div", Environment.NewLine + "<div");
-            content = content.Replace(Environment.NewLine + "</div>", Environment.NewLine + Environment.NewLine + "</div>");
-            content = content.Trim();
-            content = "    " + content.Replace(Environment.NewLine, Environment.NewLine + "    ");
-
             // Meta substitition
             var html = layout.Replace("{{ content }}", content);
             html = html.Replace("{{ title }}", md.Meta.title);
