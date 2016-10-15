@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using CommonMark;
 
@@ -24,7 +25,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\Francus" };
+                args = new[] { @"\MVC\Hexo" };
             }
 
             // Echo
@@ -394,16 +395,20 @@ namespace QuickHtml
 
         public static string FrenchChars(string text)
         {
+            // Replace some punctuations with better equivalent
             if (text == null) return text;
 
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
+            text = text.Replace(" -- ", "–");            
 
             return text;
         }
 
         public static string FrenchSpaces(string text)
         {
+            // Replace space with nbsp entity before double punctuation
+            // (space has to be present in markdown source text)
             text = text.Replace(" ?", "&nbsp;?");
             text = text.Replace(" ;", "&nbsp;;");
             text = text.Replace(" :", "&nbsp;:");
@@ -416,14 +421,16 @@ namespace QuickHtml
 
         public static string FrenchQuotes(string text)
         {
+            // Replace &quot; with french quote
+            // (CommonMark has replaced double quote with &quot; outside tags)
             var open = text.IndexOf("&quot;");
             while (open != -1)
             {
-                text = text.Substring(0, open) + "«&nbsp;" + text.Substring(open + 6).Trim();
+                text = text.Substring(0, open) + "« " + text.Substring(open + 6).Trim();
                 var close = text.IndexOf("&quot;", open + 1);
                 if (close != -1)
                 {
-                    text = text.Substring(0, close).Trim() + "&nbsp;»" + text.Substring(close + 6);
+                    text = text.Substring(0, close).Trim() + " »" + text.Substring(close + 6);
                     open = text.IndexOf("&quot;");
                 }
                 else
@@ -437,20 +444,48 @@ namespace QuickHtml
 
         public static string MarkdownToHtml(string markdown)
         {
-            // Beautify markdown content
-            markdown = FrenchChars(markdown);
-            markdown = FrenchSpaces(markdown);
-
             // Convert markdown to html
             var html = CommonMarkConverter.Convert(markdown, md_settings);
 
             // Revert nbsp chars to entities
+            // (CommonMark has replaced nbsp entities with nbsp chars)
             html = html.Replace(" ", "&nbsp;");
 
-            // Convert entity quotes to pretty quotes
-            html = FrenchQuotes(html);
+            // Beautify generated html
+            html = AfterMarkdown(html);
 
             return html;
+        }
+
+        private static string AfterMarkdown(string html)
+        {
+            // Beautify generated html outside code tag
+            var after = new StringBuilder();
+            html += "<code";
+            var index = html.IndexOf("<code");
+            while (index != -1)
+            {
+                // Replace special chars when we are outside code tag
+                var temp = html.Substring(0, index);
+                temp = FrenchChars(temp);
+                temp = FrenchQuotes(temp);
+                temp = FrenchSpaces(temp);
+                after.Append(temp);
+
+                // Check end of code block
+                html = html.Substring(index);
+                index = html.IndexOf("</code>");
+                if (index != -1)
+                {
+                    // Get code block as it
+                    after.Append(html.Substring(0, index));
+                    html = html.Substring(index);
+                    // Check for next code block
+                    index = html.IndexOf("<code");
+                }
+            }
+
+            return after.ToString();
         }
 
         private static string ShortName(string fullname, string folder)
