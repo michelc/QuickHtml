@@ -10,7 +10,7 @@ are converted to html.
 
 ```
 Project
-|-- dist
+|-- docs
 |-- src
 |   |-- css
 |   |   |-- normalize.css
@@ -33,7 +33,7 @@ Project
 ·-- readme.md
 ```
 
-### dist folder
+### docs folder
 
 This is where the final static site will be generated.
 
@@ -62,7 +62,7 @@ QuickHtml will generate the final site.
 
 ### tools folder
 
-This folder contains a batch file to run QuickHtml and create all the `dist`
+This folder contains a batch file to run QuickHtml and create all the `docs`
 content from the `src` folder.
 
 ### layout.html
@@ -116,7 +116,7 @@ will be used to replace it.
 ### sitemap.md
 
 When `src` folder contains a file named "sitemap.md", QuickHtml will use it as
-a template to generate "sitemap.xml" in the `dist` folder.
+a template to generate "sitemap.xml" in the `docs` folder.
 
 A correct template to generate a standards-compliant site map shoul be:
 
@@ -149,10 +149,10 @@ accept values specific to a page.
 
 ## Using QuickHtml
 
-### Generate `dist` website
+### Generate `docs` website
 
 Run `qh.bat` from tools folder and QuickHtml process all files in the `src`
-folder to generate the `dist` content.
+folder to generate the `docs` content.
 
 * Combine "layout.html" and "markdown" files to create "html" files,
 * Build "sitemap.xml" from "sitemap.md" and markdown files list,
@@ -164,7 +164,7 @@ Static files are copied when:
 ".png", ".txt" or ".xml",
 * they are located in the `src` root, whatever extension they have.
 
-All other files are restricted files and are not copied to the `dist` folder.
+All other files are restricted files and are not copied to the `docs` folder.
 
 Note: a "png" file is not copied when there is a "jpg" file with the same name
 in the same folder. In this case, QuickHtml considers the jpeg image is the
@@ -172,5 +172,5 @@ optimized version of the png image.
 
 ### Deploy website
 
-Once the `dist` folder is generated, you have to copy its content to your
+Once the `docs` folder is generated, you have to copy its content to your
 host space.

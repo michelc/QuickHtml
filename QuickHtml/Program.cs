@@ -69,22 +69,22 @@ namespace QuickHtml
             // Set project folder
             var proj_folder = Directory.GetParent(src_folder).FullName;
 
-            // Get distribution folder
-            var dist_folder = GetDistFolder(args, proj_folder);
-            if (dist_folder.StartsWith("!"))
+            // Get docs folder
+            var docs_folder = GetDocsFolder(args, proj_folder);
+            if (docs_folder.StartsWith("!"))
             {
-                Trace("ERROR: {0} is not a valid dist folder.", dist_folder.Substring(1));
+                Trace("ERROR: {0} is not a valid docs folder.", docs_folder.Substring(1));
                 Trace("---");
                 return;
             }
-            Trace("dist", dist_folder);
+            Trace("docs", docs_folder);
             Trace("---");
 
-            // Remove dist folder
+            // Remove docs folder
             try
             {
                 Trace("rmdir", "/*.*");
-                Directory.Delete(dist_folder, true);
+                Directory.Delete(docs_folder, true);
                 System.Threading.Thread.Sleep(10);
             }
             catch { }
@@ -103,21 +103,21 @@ namespace QuickHtml
             var sitemap = false;
             foreach (var file in files)
             {
-                // Create dist folder and subfolders
+                // Create docs folder and subfolders
                 var src_dir = Path.GetDirectoryName(file);
-                var dist_dir = src_dir.Replace(src_folder, dist_folder);
-                if (!Directory.Exists(dist_dir))
+                var docs_dir = src_dir.Replace(src_folder, docs_folder);
+                if (!Directory.Exists(docs_dir))
                 {
-                    Directory.CreateDirectory(dist_dir);
+                    Directory.CreateDirectory(docs_dir);
                     Trace("mkdir", ShortName(src_dir, src_folder));
                 }
 
-                // Mark dist folder
+                // Mark docs folder
                 if (file == layout_path)
                 {
-                    var mark = Path.Combine(dist_folder, log_file);
+                    var mark = Path.Combine(docs_folder, log_file);
                     log_writer = File.CreateText(mark);
-                    Trace("touch", ShortName(mark, dist_folder));
+                    Trace("touch", ShortName(mark, docs_folder));
                     continue;
                 }
 
@@ -128,8 +128,8 @@ namespace QuickHtml
                     continue;
                 }
 
-                // Copy file from src to dist
-                var destination = file.Replace(src_folder, dist_folder);
+                // Copy file from src to docs
+                var destination = file.Replace(src_folder, docs_folder);
                 var sub = (src_dir != src_folder);
                 var result = CopyFile(file, destination, layout, sub);
 
@@ -140,7 +140,7 @@ namespace QuickHtml
             // Create sitemap
             if (sitemap)
             {
-                WriteSitemap(files, src_folder, dist_folder);
+                WriteSitemap(files, src_folder, docs_folder);
                 Trace("WRITE", "/" + sitemap_name);
             }
         }
@@ -172,35 +172,35 @@ namespace QuickHtml
             return src_folder;
         }
 
-        private static string GetDistFolder(string[] args, string proj_folder)
+        private static string GetDocsFolder(string[] args, string proj_folder)
         {
-            // Get distribution folder
-            var dist_folder = Path.Combine(proj_folder, "dist");
-            if (args.Length > 1) dist_folder = args[1];
-            dist_folder = Path.GetFullPath(dist_folder);
+            // Get docs distribution folder
+            var docs_folder = Path.Combine(proj_folder, "docs");
+            if (args.Length > 1) docs_folder = args[1];
+            docs_folder = Path.GetFullPath(docs_folder);
 
-            // Check distribution folder
-            if (Directory.Exists(dist_folder))
+            // Check docs folder
+            if (Directory.Exists(docs_folder))
             {
-                if (File.Exists(Path.Combine(dist_folder, log_file)))
+                if (File.Exists(Path.Combine(docs_folder, log_file)))
                 {
-                    // Distribution folder is actually the distribution folder
+                    // Docs folder is actually the docs folder
                 }
-                else if (File.Exists(Path.Combine(dist_folder, "dist", log_file)))
+                else if (File.Exists(Path.Combine(docs_folder, "docs", log_file)))
                 {
-                    // Distribution folder was actually the project folder
-                    // => get the distribution subfolder
-                    dist_folder = Path.Combine(dist_folder, "dist");
+                    // Docs folder was actually the project folder
+                    // => get the docs subfolder
+                    docs_folder = Path.Combine(docs_folder, "docs");
                 }
                 else
                 {
-                    // Invalid distribution folder
-                    dist_folder = "!" + dist_folder;
+                    // Invalid docs folder
+                    docs_folder = "!" + docs_folder;
                 }
 
             }
 
-            return dist_folder;
+            return docs_folder;
         }
 
         private static List<string> GetAllFiles(string folder)
@@ -313,7 +313,7 @@ namespace QuickHtml
             File.WriteAllText(destination, html);
         }
 
-        private static void WriteSitemap(List<string> files, string src_folder, string dist_folder)
+        private static void WriteSitemap(List<string> files, string src_folder, string docs_folder)
         {
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
@@ -353,7 +353,7 @@ namespace QuickHtml
             var xml = md.Body.Replace(template, string.Join("", urls.OrderBy(u => u)));
 
             // Create sitemap.xml file
-            var destination = Path.Combine(dist_folder, sitemap_name.Replace(".md", ".xml"));
+            var destination = Path.Combine(docs_folder, sitemap_name.Replace(".md", ".xml"));
             File.WriteAllText(destination, xml);
         }
 
