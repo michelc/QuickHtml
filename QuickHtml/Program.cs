@@ -25,7 +25,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\Hexo" };
+                args = new[] { @"\MVC\saint-privat-qh" };
             }
 
             // Echo
@@ -287,7 +287,7 @@ namespace QuickHtml
 
         private static void WriteHtml(string source, string destination, string layout, bool sub)
         {
-            // Load markdown source 
+            // Load markdown source
             var md = LoadMarkdown(source);
 
             // Convert markdown to html
@@ -318,7 +318,7 @@ namespace QuickHtml
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
 
-            // Check site url 
+            // Check site url
             if (!md.Meta.url.EndsWith("/")) md.Meta.url += "/";
 
             // Build url list
@@ -400,7 +400,7 @@ namespace QuickHtml
 
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
-            text = text.Replace(" -- ", "–");            
+            text = Regex.Replace(text, @"([\s,])(--)([\s,])", "$1–$3", RegexOptions.Multiline);
 
             return text;
         }
