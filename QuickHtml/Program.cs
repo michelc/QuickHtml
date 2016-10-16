@@ -396,11 +396,13 @@ namespace QuickHtml
         public static string FrenchChars(string text)
         {
             // Replace some punctuations with better equivalent
+            // Replace some characters with better equivalent
             if (text == null) return text;
 
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
             text = Regex.Replace(text, @"([\s,])(--)([\s,])", "$1–$3", RegexOptions.Multiline);
+            text = text.Replace("oe", "œ");
 
             return text;
         }
