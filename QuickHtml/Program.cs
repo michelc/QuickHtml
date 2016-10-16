@@ -387,10 +387,22 @@ namespace QuickHtml
             }
 
             // Check meta content
-            md.Meta.title = FrenchChars(md.Meta.title);
-            md.Meta.index = FrenchChars(md.Meta.index) ?? md.Meta.title;
+            md.Meta.title = CheckMeta(md.Meta.title);
+            md.Meta.index = CheckMeta(md.Meta.index) ?? md.Meta.title;
+            md.Meta.description = CheckMeta(md.Meta.description);
 
             return md;
+        }
+
+        public static string CheckMeta(string text)
+        {
+            if (text == null) return text;
+
+            text = text.Replace("\"", "&quot;");
+            text = AfterMarkdown(text);
+            text = text.Replace("&nbsp;", " ");
+
+            return text;
         }
 
         public static string FrenchChars(string text)
