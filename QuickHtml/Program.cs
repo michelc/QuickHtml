@@ -308,6 +308,10 @@ namespace QuickHtml
                 html = html.Replace(" src=\"./images/", " src=\"./../images/");
             }
 
+            // Remove empty content
+            html = Regex.Replace(html, "\\s*<meta name=\"description\" content=\"\">", "", RegexOptions.Multiline);
+            html = Regex.Replace(html, "\\s*<meta name=\"keywords\" content=\"\">", "", RegexOptions.Multiline);
+
             // Create html file
             destination = destination.Substring(0, destination.Length - 2) + "html";
             File.WriteAllText(destination, html);
