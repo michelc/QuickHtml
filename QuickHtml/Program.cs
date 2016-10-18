@@ -25,7 +25,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\saint-privat-qh" };
+                args = new[] { @"\MVC\docteur-francus.eu.org" };
             }
 
             // Echo
@@ -480,6 +480,7 @@ namespace QuickHtml
             // Beautify generated html outside code tag
             var after = new StringBuilder();
             html += "<code";
+            html = html.Replace("<script", "<code:script").Replace("</script", "</code:script");
             var index = html.IndexOf("<code");
             while (index != -1)
             {
@@ -492,7 +493,7 @@ namespace QuickHtml
 
                 // Check end of code block
                 html = html.Substring(index);
-                index = html.IndexOf("</code>");
+                index = html.IndexOf("</code");
                 if (index != -1)
                 {
                     // Get code block as it
@@ -503,7 +504,9 @@ namespace QuickHtml
                 }
             }
 
-            return after.ToString();
+            after = after.Replace("<code:script", "<script").Replace("</code:script", "</script");
+
+            return after.ToString().Trim();
         }
 
         private static string ShortName(string fullname, string folder)
