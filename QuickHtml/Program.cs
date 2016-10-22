@@ -26,7 +26,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\Tutos" };
+                args = new[] { @"\MVC\docteur-francus.eu.org" };
             }
 
             // Echo
@@ -420,7 +420,15 @@ namespace QuickHtml
                 {
                     case 0:
                         if (text == "---")
+                        {
                             meta++;
+                        }
+                        else if (text != "")
+                        {
+                            meta = 2;
+                            md.Meta.title = Path.GetFileNameWithoutExtension(file);
+                            md.AddLine(line);
+                        }
                         break;
                     case 1:
                         if (text == "---")
@@ -433,10 +441,6 @@ namespace QuickHtml
                         break;
                 }
             }
-
-            // When there is no yaml front-matter
-            if (meta == 0)
-                md.Body = string.Join(Environment.NewLine, lines);
 
             // Check page variables
             md.Meta.title = CheckVariable(md.Meta.title);
