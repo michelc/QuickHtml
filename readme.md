@@ -52,7 +52,7 @@ The `src` folder should at least contain 3 folders for your site assets:
 
 This folder must have a file with the name `layout.html`:
 * It's the template for all pages from your website,
-* QuickHtml will not create yout static site without this file.
+* QuickHtml will not create your static site without this file.
 
 Then you have to create one markdown file for each page you want to publish in
 your generated site. This markdown files can be nested in subfolders.
@@ -71,29 +71,45 @@ content from the `src` folder.
 This file contains all the site settings.
 
 ```
+maintitle: My Web Site
 url: https://www.my-site.com/
+urltitle: ~ www.My-Site.Com ~
 changefreq: monthly
 priority: 1.0
 ```
 
-This settings are used to generate a sitemap.
+This "variables" are used to configure your website:
 
+* `{{ maintitle }}` is the general title of your website,
 * `{{ url }}` is the URL of your website,
-* `{{ changefreq }}` is used to create `sitemap.xml`
-* `{{ priority }}` is used to create `sitemap.xml`
+* `{{ urltitle }}` is a title to link to your site,
+* `{{ changefreq }}` is used to create `sitemap.xml`,
+* `{{ priority }}` is used to create `sitemap.xml`.
+
+`{{ url }}` define the exact address of your website, like
+"https://www.my-site.com/" or "http://example.org/". This information is
+mandatory when QuickHtml need to create a sitemap.
+
+`{{ urltitle }}` is a short text generally used in the footer of each page to
+link to your site. It can be your name, a pretty title, or whatever you want. By
+default, QuickHtml will use the "domain" of the URL, like "www.my-site.com" or
+"example.org".
 
 ### layout.html
 
 This a pure html file which contains the template for all the pages of your
-website. Inside this html code, you can use 4 "variables" data to personalize
-the content of the final page.
+website. Inside this html code, you can use "variables" to personalize the
+content of the final page.
+
+You can use the 5 general variables from `config.yml` and 4 more variables
+specific to each page:
 
 * `{{ title }}` define the current page title,
 * `{{ description }}` is the content for the description meta header,
-* `{{ index }}` should be a title for the index page in the current folder,
+* `{{ indextitle }}` should be a title for the index page in the current folder,
 * `{{ id }}` can be used to identify the page.
 
-This variables will be replaced with actual values when QuickHtml will convert
+All variables will be replaced with actual values when QuickHtml will convert
 markdown files.
 
 Variable names are case sensitive.
@@ -106,7 +122,7 @@ header where you can define the values for all variables.
 ```
 ---
 title: Welcome
-id: index
+id: home
 ---
 
 ## {{ title }}
@@ -123,8 +139,8 @@ You only have to define variables that are actually used in your `layout.html`
 template.
 
 * If you don't define a variable but use it in `layout.html`, an empty value
-will be used an no error occurs.
-* If you don't define the `index` variable but use it, the `title` value
+will be used and no error occurs.
+* If you don't define the `indextitle` variable but use it, the `title` value
 will be used to replace it.
 
 
@@ -135,7 +151,7 @@ will be used to replace it.
 When `src` folder contains a file named "sitemap.md", QuickHtml will use it as
 a template to generate "sitemap.xml" in the `docs` folder.
 
-A correct template to generate a standards-compliant site map shoul be:
+A correct template to generate a standards-compliant site map should be:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -149,7 +165,7 @@ A correct template to generate a standards-compliant site map shoul be:
 </urlset>
 ```
 
-The sitemap template uses 3 "variables" defined in `config.yml` :
+The sitemap template uses 3 "variables" defined in `config.yml`:
 
 * `{{ url }}` to define the website URL,
 * `{{ changefreq }}` for page modification frequency: daily, weekly, monthly or

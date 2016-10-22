@@ -26,7 +26,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\docteur-francus.eu.org" };
+                args = new[] { @"\MVC\Tutos" };
             }
 
             // Echo
@@ -142,7 +142,7 @@ namespace QuickHtml
                 // Copy file from src to docs
                 var destination = file.Replace(src_folder, docs_folder);
                 var sub = (src_dir != src_folder);
-                var result = CopyFile(file, destination, layout, sub);
+                var result = CopyFile(config, file, destination, layout, sub);
 
                 // Trace file copy/build
                 Trace(result, ShortName(file, src_folder));
@@ -151,7 +151,7 @@ namespace QuickHtml
             // Create sitemap
             if (sitemap)
             {
-                var result = WriteSitemap(files, src_folder, docs_folder, config);
+                var result = WriteSitemap(config, src_folder, docs_folder, files);
                 Trace(result, "/" + sitemap_name);
             }
         }
@@ -254,7 +254,7 @@ namespace QuickHtml
             return list;
         }
 
-        static string CopyFile(string source, string destination, string layout, bool sub)
+        static string CopyFile(dynamic config, string source, string destination, string layout, bool sub)
         {
             if (source.EndsWith("!!")) return "   no";
             var result = "";
@@ -276,7 +276,7 @@ namespace QuickHtml
                     break;
                 case ".md":
                     // Create html files from markdown files
-                    WriteHtml(source, destination, layout, sub);
+                    WriteHtml(config, source, destination, layout, sub);
                     result = "WRITE";
                     break;
                 default:
@@ -296,7 +296,7 @@ namespace QuickHtml
             return result;
         }
 
-        private static void WriteHtml(string source, string destination, string layout, bool sub)
+        private static void WriteHtml(dynamic config, string source, string destination, string layout, bool sub)
         {
             // Load markdown source
             var md = LoadMarkdown(source);
@@ -304,10 +304,13 @@ namespace QuickHtml
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body);
 
-            // Meta substitition
+            // Variables substitition
             var html = layout.Replace("{{ content }}", content);
+            html = html.Replace("{{ maintitle }}", config.maintitle);
+            html = html.Replace("{{ url }}", config.url);
+            html = html.Replace("{{ urltitle }}", config.urltitle);
             html = html.Replace("{{ title }}", md.Meta.title);
-            html = html.Replace("{{ index }}", md.Meta.index);
+            html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
             html = html.Replace("{{ id }}", md.Meta.id);
             html = html.Replace("{{ description }}", md.Meta.description);
 
@@ -328,7 +331,7 @@ namespace QuickHtml
             File.WriteAllText(destination, html);
         }
 
-        private static string WriteSitemap(List<string> files, string src_folder, string docs_folder, dynamic config)
+        private static string WriteSitemap(dynamic config, string src_folder, string docs_folder, List<string> files)
         {
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
@@ -391,12 +394,13 @@ namespace QuickHtml
                 }
             }
 
-            // Check config content
-            config.title = CheckMeta(config.title);
+            // Check config variables
+            config.maintitle = CheckVariable(config.maintitle);
             if (!string.IsNullOrEmpty(config.url))
             {
                 var uri = new Uri(config.url);
                 config.url = uri.AbsoluteUri;
+                config.urltitle = config.urltitle ?? uri.Host;
             }
             config.changefreq = config.changefreq ?? "yearly";
             config.priority = config.priority ?? "1.0";
@@ -437,15 +441,15 @@ namespace QuickHtml
             if (meta == 0)
                 md.Body = string.Join(Environment.NewLine, lines);
 
-            // Check meta content
-            md.Meta.title = CheckMeta(md.Meta.title);
-            md.Meta.index = CheckMeta(md.Meta.index) ?? md.Meta.title;
-            md.Meta.description = CheckMeta(md.Meta.description);
+            // Check page variables
+            md.Meta.title = CheckVariable(md.Meta.title);
+            md.Meta.indextitle = CheckVariable(md.Meta.indextitle) ?? md.Meta.title;
+            md.Meta.description = CheckVariable(md.Meta.description);
 
             return md;
         }
 
-        public static string CheckMeta(string text)
+        public static string CheckVariable(string text)
         {
             if (text == null) return text;
 
