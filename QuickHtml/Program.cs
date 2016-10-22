@@ -151,8 +151,8 @@ namespace QuickHtml
             // Create sitemap
             if (sitemap)
             {
-                WriteSitemap(files, src_folder, docs_folder, config);
-                Trace("WRITE", "/" + sitemap_name);
+                var result = WriteSitemap(files, src_folder, docs_folder, config);
+                Trace(result, "/" + sitemap_name);
             }
         }
 
@@ -328,15 +328,13 @@ namespace QuickHtml
             File.WriteAllText(destination, html);
         }
 
-        private static void WriteSitemap(List<string> files, string src_folder, string docs_folder, dynamic config)
+        private static string WriteSitemap(List<string> files, string src_folder, string docs_folder, dynamic config)
         {
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
 
             // Check site url
-            var site_url = md.Meta.url ?? config.url ?? "";
-            if (site_url == "") return;
-            if (!site_url.EndsWith("/")) site_url += "/";
+            if (string.IsNullOrEmpty(config.url)) return "ALERT";
 
             // Build url list
             var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
@@ -347,16 +345,16 @@ namespace QuickHtml
                 {
                     // Set url location
                     var loc = ShortName(file, src_folder).Substring(1);
-                    loc = site_url + loc.Substring(0, loc.Length - 2) + "html";
+                    loc = config.url + loc.Substring(0, loc.Length - 2) + "html";
                     loc = loc.Replace("/index.html", "/");
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
                     // Set url change frequency
                     var page = LoadMarkdown(file);
-                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq ?? config.changefreq ?? "yearly";
+                    var changefreq = page.Meta.changefreq ?? config.changefreq;
                     // Set url priority
-                    var priority = page.Meta.priority ?? md.Meta.priority ?? config.priority ?? "1.0";
+                    var priority = page.Meta.priority ?? config.priority;
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
@@ -372,6 +370,8 @@ namespace QuickHtml
             // Create sitemap.xml file
             var destination = Path.Combine(docs_folder, sitemap_name.Replace(".md", ".xml"));
             File.WriteAllText(destination, xml);
+
+            return "WRITE";
         }
 
         public static dynamic LoadConfig(string file)
@@ -393,6 +393,13 @@ namespace QuickHtml
 
             // Check config content
             config.title = CheckMeta(config.title);
+            if (!string.IsNullOrEmpty(config.url))
+            {
+                var uri = new Uri(config.url);
+                config.url = uri.AbsoluteUri;
+            }
+            config.changefreq = config.changefreq ?? "yearly";
+            config.priority = config.priority ?? "1.0";
 
             return config;
         }

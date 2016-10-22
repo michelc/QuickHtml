@@ -19,6 +19,7 @@ Project
 |   |-- js
 |   |-- contents
 |   |   ·-- flyer.pdf
+|   |-- config.yml
 |   |-- favicon.ico
 |   |-- index.md
 |   |-- layout.html
@@ -64,6 +65,22 @@ QuickHtml will generate the final site.
 
 This folder contains a batch file to run QuickHtml and create all the `docs`
 content from the `src` folder.
+
+### config.yml
+
+This file contains all the site settings.
+
+```
+url: https://www.my-site.com/
+changefreq: monthly
+priority: 1.0
+```
+
+This settings are used to generate a sitemap.
+
+* `{{ url }}` is the URL of your website,
+* `{{ changefreq }}` is used to create `sitemap.xml`
+* `{{ priority }}` is used to create `sitemap.xml`
 
 ### layout.html
 
@@ -121,11 +138,6 @@ a template to generate "sitemap.xml" in the `docs` folder.
 A correct template to generate a standards-compliant site map shoul be:
 
 ```
----
-url: https://www.my-site.com/
-changefreq: monthly
-priority: 1.0
----
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -137,14 +149,20 @@ priority: 1.0
 </urlset>
 ```
 
-The sitemap template uses 3 specific "variables":
+The sitemap template uses 3 "variables" defined in `config.yml` :
 
-* `{{ url }}` to define the website domain,
-* `{{ changefreq }}` for page modification frequency (daily, weekly or monthly)
-* `{{ priority }}` for page priority (a value between 0.0 to 1.0)
+* `{{ url }}` to define the website URL,
+* `{{ changefreq }}` for page modification frequency: daily, weekly, monthly or
+  yearly by default
+* `{{ priority }}` for page priority: value between 0.0 to 1.0 (1.0 by default)
+
+If `{{ url }}` don't exist in `config.yml`, the sitemap is not created.
 
 Variables `changefreq` and `priority` can also be defined at the page level to
 accept values specific to a page.
+
+The 2 variables `{{ loc }}` and `{{ lastmod }}` are automatically set by
+QuickHtml.
 
 
 ## Using QuickHtml
