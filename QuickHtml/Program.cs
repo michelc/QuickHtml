@@ -299,7 +299,7 @@ namespace QuickHtml
         private static void WriteHtml(dynamic config, string source, string destination, string layout, bool sub)
         {
             // Load markdown source
-            var md = LoadMarkdown(source);
+            var md = LoadMarkdown(source, config);
 
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body);
@@ -334,7 +334,7 @@ namespace QuickHtml
         private static string WriteSitemap(dynamic config, string src_folder, string docs_folder, List<string> files)
         {
             // Load markdown sitemap
-            var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
+            var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name), config);
 
             // Check site url
             if (string.IsNullOrEmpty(config.url)) return "ALERT";
@@ -353,16 +353,13 @@ namespace QuickHtml
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
-                    // Set url change frequency
-                    var page = LoadMarkdown(file);
-                    var changefreq = page.Meta.changefreq ?? config.changefreq;
-                    // Set url priority
-                    var priority = page.Meta.priority ?? config.priority;
+                    // Get change frequency and priority
+                    var page = LoadMarkdown(file, config);
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
-                                      .Replace("{{ changefreq }}", changefreq)
-                                      .Replace("{{ priority }}", priority);
+                                      .Replace("{{ changefreq }}", page.Meta.changefreq)
+                                      .Replace("{{ priority }}", page.Meta.priority);
                     urls.Add(url);
                 }
             }
@@ -408,7 +405,7 @@ namespace QuickHtml
             return config;
         }
 
-        public static QuickMarkdown LoadMarkdown(string file)
+        public static QuickMarkdown LoadMarkdown(string file, dynamic config)
         {
             // Get file content
             var lines = File.ReadAllLines(file);
@@ -445,6 +442,8 @@ namespace QuickHtml
             md.Meta.title = CheckVariable(md.Meta.title);
             md.Meta.indextitle = CheckVariable(md.Meta.indextitle) ?? md.Meta.title;
             md.Meta.description = CheckVariable(md.Meta.description);
+            md.Meta.changefreq = md.Meta.changefreq ?? config.changefreq;
+            md.Meta.priority = md.Meta.priority ?? config.priority;
 
             return md;
         }
