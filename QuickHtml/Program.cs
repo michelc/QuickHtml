@@ -477,7 +477,7 @@ namespace QuickHtml
 
         private static string AfterMarkdown(string html)
         {
-            // Beautify html outside <code>...</code>, <script>...</script>, <x...> and </x>
+            // Beautify html outside <code>...</code>, <pre>...</pre>, <script>...</script>, <x...> and </x>
             var after = new StringBuilder();
             html += "<";
             var index = StartOfTag(html);
@@ -516,6 +516,8 @@ namespace QuickHtml
                         return i;
                     if (html.Substring(i).StartsWith("<code"))
                         return i;
+                    if (html.Substring(i).StartsWith("<pre"))
+                        return i;
                     if (html.Substring(i).StartsWith("<script"))
                         return i;
                     if (html[i + 1] == '/')
@@ -530,33 +532,20 @@ namespace QuickHtml
 
         private static int EndOfTag(string html)
         {
-            var index = -1;
-            if (html.StartsWith("<code"))
+            var tags = new[] { "code", "pre", "script", "" };
+            foreach (var tag in tags)
             {
-                // Start from "<code..."
-                // => skip up to "</code>"
-                index = html.IndexOf("</code>");
-                if (index != -1)
-                    index += 7;
-            }
-            else if (html.StartsWith("<script"))
-            {
-                // Start from "<script..."
-                // => skip up to "</script>"
-                index = html.IndexOf("</script>");
-                if (index != -1)
-                    index += 9;
-            }
-            else
-            {
-                // Start from "<tagname..."
-                // => skip up to ">"
-                index = html.IndexOf(">");
-                if (index != -1)
-                    index += 1;
+                if (html.StartsWith("<" + tag))
+                {
+                    var end = tag == "" ? ">" : "</" + tag + ">";
+                    var index = html.IndexOf(end);
+                    if (index != -1)
+                        index += tag.Length;
+                    return index;
+                }
             }
 
-            return index;
+            return -1;
         }
 
         private static string ShortName(string fullname, string folder)
