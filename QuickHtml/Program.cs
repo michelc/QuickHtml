@@ -12,6 +12,7 @@ namespace QuickHtml
 {
     public class Program
     {
+        public const string config_name = "config.yml";
         public const string layout_name = "layout.html";
         public const string sitemap_name = "sitemap.md";
         public static CommonMarkSettings md_settings;
@@ -25,7 +26,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\Tutos" };
+                args = new[] { @"\MVC\docteur-francus.eu.org" };
             }
 
             // Echo
@@ -89,6 +90,10 @@ namespace QuickHtml
             }
             catch { }
 
+            // Load config file
+            var config_path = Path.Combine(src_folder, config_name);
+            var config = LoadConfig(config_path);
+
             // Load layout file
             var layout_path = Path.Combine(src_folder, layout_name);
             var layout = File.ReadAllText(layout_path);
@@ -121,6 +126,12 @@ namespace QuickHtml
                     continue;
                 }
 
+                // Omit config.yml
+                if (file.EndsWith(config_name))
+                {
+                    continue;
+                }
+
                 // Omit sitemap.md
                 if (file.EndsWith(sitemap_name))
                 {
@@ -140,7 +151,7 @@ namespace QuickHtml
             // Create sitemap
             if (sitemap)
             {
-                WriteSitemap(files, src_folder, docs_folder);
+                WriteSitemap(files, src_folder, docs_folder, config);
                 Trace("WRITE", "/" + sitemap_name);
             }
         }
@@ -317,13 +328,15 @@ namespace QuickHtml
             File.WriteAllText(destination, html);
         }
 
-        private static void WriteSitemap(List<string> files, string src_folder, string docs_folder)
+        private static void WriteSitemap(List<string> files, string src_folder, string docs_folder, dynamic config)
         {
             // Load markdown sitemap
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name));
 
             // Check site url
-            if (!md.Meta.url.EndsWith("/")) md.Meta.url += "/";
+            var site_url = md.Meta.url ?? config.url ?? "";
+            if (site_url == "") return;
+            if (!site_url.EndsWith("/")) site_url += "/";
 
             // Build url list
             var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
@@ -334,16 +347,16 @@ namespace QuickHtml
                 {
                     // Set url location
                     var loc = ShortName(file, src_folder).Substring(1);
-                    loc = md.Meta.url + loc.Substring(0, loc.Length - 2) + "html";
+                    loc = site_url + loc.Substring(0, loc.Length - 2) + "html";
                     loc = loc.Replace("/index.html", "/");
                     // Set url last modification
                     var f = new FileInfo(file);
                     var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
                     // Set url change frequency
                     var page = LoadMarkdown(file);
-                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq ?? "yearly";
+                    var changefreq = page.Meta.changefreq ?? md.Meta.changefreq ?? config.changefreq ?? "yearly";
                     // Set url priority
-                    var priority = page.Meta.priority ?? md.Meta.priority ?? "1.0";
+                    var priority = page.Meta.priority ?? md.Meta.priority ?? config.priority ?? "1.0";
                     // Add url
                     var url = template.Replace("{{ loc }}", loc)
                                       .Replace("{{ lastmod }}", lastmod)
@@ -359,6 +372,29 @@ namespace QuickHtml
             // Create sitemap.xml file
             var destination = Path.Combine(docs_folder, sitemap_name.Replace(".md", ".xml"));
             File.WriteAllText(destination, xml);
+        }
+
+        public static dynamic LoadConfig(string file)
+        {
+            // Get file content
+            var lines = File.ReadAllLines(file);
+
+            // Parse file content
+            dynamic config = new QuickDynamic();
+            foreach (var line in lines)
+            {
+                var text = line.Trim();
+                var split = text.IndexOf(": ");
+                if (split != -1)
+                {
+                    config.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+                }
+            }
+
+            // Check config content
+            config.title = CheckMeta(config.title);
+
+            return config;
         }
 
         public static QuickMarkdown LoadMarkdown(string file)
@@ -389,6 +425,10 @@ namespace QuickHtml
                         break;
                 }
             }
+
+            // When there is no yaml front-matter
+            if (meta == 0)
+                md.Body = string.Join(Environment.NewLine, lines);
 
             // Check meta content
             md.Meta.title = CheckMeta(md.Meta.title);
