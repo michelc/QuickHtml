@@ -25,7 +25,7 @@ namespace QuickHtml
             // Debug
             if (Debugger.IsAttached)
             {
-                args = new[] { @"\MVC\docteur-francus.eu.org" };
+                args = new[] { @"\MVC\Tutos" };
             }
 
             // Echo
@@ -477,36 +477,86 @@ namespace QuickHtml
 
         private static string AfterMarkdown(string html)
         {
-            // Beautify generated html outside code tag
+            // Beautify html outside <code>...</code>, <script>...</script>, <x...> and </x>
             var after = new StringBuilder();
-            html += "<code";
-            html = html.Replace("<script", "<code:script").Replace("</script", "</code:script");
-            var index = html.IndexOf("<code");
+            html += "<";
+            var index = StartOfTag(html);
             while (index != -1)
             {
-                // Replace special chars when we are outside code tag
+                // Replace special chars when they are outside tag
                 var temp = html.Substring(0, index);
                 temp = FrenchChars(temp);
                 temp = FrenchQuotes(temp);
                 temp = FrenchSpaces(temp);
                 after.Append(temp);
 
-                // Check end of code block
+                // Check end of tag block
                 html = html.Substring(index);
-                index = html.IndexOf("</code");
+                index = EndOfTag(html);
                 if (index != -1)
                 {
-                    // Get code block as it
+                    // Get tag block as it
                     after.Append(html.Substring(0, index));
                     html = html.Substring(index);
-                    // Check for next code block
-                    index = html.IndexOf("<code");
+                    // Check for next tag block
+                    index = StartOfTag(html);
                 }
             }
 
-            after = after.Replace("<code:script", "<script").Replace("</code:script", "</script");
-
             return after.ToString().Trim();
+        }
+
+        private static int StartOfTag(string html)
+        {
+            for (var i = 0; i < html.Length; i++)
+            {
+                if (html[i] == '<')
+                {
+                    if (i == html.Length - 1)
+                        return i;
+                    if (html.Substring(i).StartsWith("<code"))
+                        return i;
+                    if (html.Substring(i).StartsWith("<script"))
+                        return i;
+                    if (html[i + 1] == '/')
+                        return i;
+                    if (char.IsLetter(html[i + 1]))
+                        return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static int EndOfTag(string html)
+        {
+            var index = -1;
+            if (html.StartsWith("<code"))
+            {
+                // Start from "<code..."
+                // => skip up to "</code>"
+                index = html.IndexOf("</code>");
+                if (index != -1)
+                    index += 7;
+            }
+            else if (html.StartsWith("<script"))
+            {
+                // Start from "<script..."
+                // => skip up to "</script>"
+                index = html.IndexOf("</script>");
+                if (index != -1)
+                    index += 9;
+            }
+            else
+            {
+                // Start from "<tagname..."
+                // => skip up to ">"
+                index = html.IndexOf(">");
+                if (index != -1)
+                    index += 1;
+            }
+
+            return index;
         }
 
         private static string ShortName(string fullname, string folder)
