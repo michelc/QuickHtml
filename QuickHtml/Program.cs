@@ -376,29 +376,35 @@ namespace QuickHtml
 
         public static dynamic LoadConfig(string file)
         {
-            // Get file content
-            var lines = File.ReadAllLines(file);
-
-            // Parse file content
+            // Load config variables
             dynamic config = new QuickDynamic();
-            foreach (var line in lines)
+            if (File.Exists(file))
             {
-                var text = line.Trim();
-                var split = text.IndexOf(": ");
-                if (split != -1)
+                // Get file content
+                var lines = File.ReadAllLines(file);
+
+                // Parse file content
+                foreach (var line in lines)
                 {
-                    config.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+                    var text = line.Trim();
+                    var split = text.IndexOf(": ");
+                    if (split != -1)
+                    {
+                        config.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
+                    }
+                }
+
+                // Check config variables
+                config.maintitle = CheckVariable(config.maintitle);
+                if (!string.IsNullOrEmpty(config.url))
+                {
+                    var uri = new Uri(config.url);
+                    config.url = uri.AbsoluteUri;
+                    config.urltitle = config.urltitle ?? uri.Host;
                 }
             }
 
-            // Check config variables
-            config.maintitle = CheckVariable(config.maintitle);
-            if (!string.IsNullOrEmpty(config.url))
-            {
-                var uri = new Uri(config.url);
-                config.url = uri.AbsoluteUri;
-                config.urltitle = config.urltitle ?? uri.Host;
-            }
+            // Set default values
             config.changefreq = config.changefreq ?? "yearly";
             config.priority = config.priority ?? "1.0";
 
