@@ -296,17 +296,22 @@ namespace QuickHtml
 
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body, config.lang);
+            var html = layout.Replace("{{ content }}", content);
 
             // Variables substitition
-            var html = layout.Replace("{{ content }}", content);
-            html = html.Replace("{{ description }}", md.Meta.description);
-            html = html.Replace("{{ id }}", md.Meta.id);
-            html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
-            html = html.Replace("{{ lang }}", config.lang);
-            html = html.Replace("{{ maintitle }}", config.maintitle);
-            html = html.Replace("{{ title }}", md.Meta.title);
-            html = html.Replace("{{ url }}", config.url);
-            html = html.Replace("{{ urltitle }}", config.urltitle);
+            // (3 times in case one variable use another variable)
+            for (var i = 0; i < 3; i++)
+            {
+                html = html.Replace("{{ description }}", md.Meta.description);
+                html = html.Replace("{{ id }}", md.Meta.id);
+                html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
+                html = html.Replace("{{ lang }}", config.lang);
+                html = html.Replace("{{ maintitle }}", config.maintitle);
+                html = html.Replace("{{ title }}", md.Meta.title);
+                html = html.Replace("{{ url }}", config.url);
+                html = html.Replace("{{ urltitle }}", config.urltitle);
+                if (!html.Contains("{{")) break;
+            }
 
             // Subfolders path
             if (sub)
