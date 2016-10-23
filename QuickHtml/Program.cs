@@ -18,8 +18,7 @@ namespace QuickHtml
         public static CommonMarkSettings md_settings;
 
         public const string log_file = "qh.log";
-        public static string log_buffer = "";
-        public static StreamWriter log_writer;
+        public static QuickLog log;
 
         public static void Main(string[] args)
         {
@@ -30,17 +29,12 @@ namespace QuickHtml
             }
 
             // Echo
-            Trace("QuickHtml {0}", string.Join(" ", args));
+            log = new QuickLog();
+            log.Trace("QuickHtml {0}", string.Join(" ", args));
 
             // Run
             Start(args);
-
-            // Log
-            try
-            {
-                if (log_writer != null) log_writer.Close();
-            }
-            catch { }
+            log.Close();
 
             // Pause
             if (Debugger.IsAttached)
@@ -54,18 +48,18 @@ namespace QuickHtml
         private static void Start(string[] args)
         {
             // Set time start
-            Trace("---");
-            Trace("date", DateTime.Now.ToString());
+            log.Trace("---");
+            log.Trace("date", DateTime.Now.ToString());
 
             // Get source folder
             var src_folder = GetSrcFolder(args);
             if (src_folder.StartsWith("!"))
             {
-                Trace("ERROR: {0} is not a valid src folder.", src_folder.Substring(1));
-                Trace("---");
+                log.Trace("ERROR: {0} is not a valid src folder.", src_folder.Substring(1));
+                log.Trace("---");
                 return;
             }
-            Trace("src", src_folder);
+            log.Trace("src", src_folder);
 
             // Set project folder
             var proj_folder = Directory.GetParent(src_folder).FullName;
@@ -74,17 +68,17 @@ namespace QuickHtml
             var docs_folder = GetDocsFolder(args, proj_folder);
             if (docs_folder.StartsWith("!"))
             {
-                Trace("ERROR: {0} is not a valid docs folder.", docs_folder.Substring(1));
-                Trace("---");
+                log.Trace("ERROR: {0} is not a valid docs folder.", docs_folder.Substring(1));
+                log.Trace("---");
                 return;
             }
-            Trace("docs", docs_folder);
-            Trace("---");
+            log.Trace("docs", docs_folder);
+            log.Trace("---");
 
             // Remove docs folder
             try
             {
-                Trace("rmdir", "/*.*");
+                log.Trace("rmdir", "/*.*");
                 Directory.Delete(docs_folder, true);
                 System.Threading.Thread.Sleep(10);
             }
@@ -114,15 +108,15 @@ namespace QuickHtml
                 if (!Directory.Exists(docs_dir))
                 {
                     Directory.CreateDirectory(docs_dir);
-                    Trace("mkdir", ShortName(src_dir, src_folder));
+                    log.Trace("mkdir", ShortName(src_dir, src_folder));
                 }
 
                 // Mark docs folder
                 if (file == layout_path)
                 {
                     var mark = Path.Combine(docs_folder, log_file);
-                    log_writer = File.CreateText(mark);
-                    Trace("touch", ShortName(mark, docs_folder));
+                    log.Open(mark);
+                    log.Trace("touch", ShortName(mark, docs_folder));
                     continue;
                 }
 
@@ -145,14 +139,14 @@ namespace QuickHtml
                 var result = CopyFile(config, file, destination, layout, sub);
 
                 // Trace file copy/build
-                Trace(result, ShortName(file, src_folder));
+                log.Trace(result, ShortName(file, src_folder));
             }
 
             // Create sitemap
             if (sitemap)
             {
                 var result = WriteSitemap(config, src_folder, docs_folder, files);
-                Trace(result, "/" + sitemap_name);
+                log.Trace(result, "/" + sitemap_name);
             }
         }
 
@@ -636,33 +630,6 @@ namespace QuickHtml
 
             return name;
         }
-
-        private static void Trace(string action, string detail = "")
-        {
-            var echo = "";
-            if (action.Contains("{"))
-            {
-                echo = string.Format(action, detail);
-            }
-            else if (string.IsNullOrEmpty(detail))
-            {
-                echo = action;
-            }
-            else
-            {
-                echo = string.Format("{0}: {1}", action, detail);
-            }
-
-            Console.WriteLine(echo);
-
-            log_buffer += echo;
-            log_buffer += Environment.NewLine;
-            if (log_writer != null)
-            {
-                log_writer.Write(log_buffer);
-                log_buffer = "";
-            }
-        }
     }
 
     public class QuickMarkdown
@@ -713,6 +680,62 @@ namespace QuickHtml
             this.list[binder.Name] = value;
 
             return true;
+        }
+    }
+
+    public class QuickLog
+    {
+        private StreamWriter log_writer;
+        private string log_buffer = "";
+        private DateTime start;
+
+        public QuickLog()
+        {
+            start = DateTime.Now;
+        }
+
+        public void Open(string log_file)
+        {
+            log_writer = File.CreateText(log_file);
+        }
+
+        public void Trace(string action, string detail = "")
+        {
+            var echo = "";
+            if (action.Contains("{"))
+            {
+                echo = string.Format(action, detail);
+            }
+            else if (string.IsNullOrEmpty(detail))
+            {
+                echo = action;
+            }
+            else
+            {
+                echo = string.Format("{0}: {1}", action, detail);
+            }
+
+            Console.WriteLine(echo);
+
+            log_buffer += echo;
+            log_buffer += Environment.NewLine;
+            if (log_writer != null)
+            {
+                log_writer.Write(log_buffer);
+                log_buffer = "";
+            }
+        }
+
+        public void Close()
+        {
+            var duration = Convert.ToInt32(DateTime.Now.Subtract(start).TotalSeconds).ToString();
+            Trace("---");
+            Trace("Site built in {0} seconds.", duration);
+            try
+            {
+                if (log_writer != null) log_writer.Close();
+            }
+            catch { }
         }
     }
 }
