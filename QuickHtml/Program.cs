@@ -302,17 +302,18 @@ namespace QuickHtml
             var md = LoadMarkdown(source, config);
 
             // Convert markdown to html
-            var content = MarkdownToHtml(md.Body);
+            var content = MarkdownToHtml(md.Body, config.lang);
 
             // Variables substitition
             var html = layout.Replace("{{ content }}", content);
+            html = html.Replace("{{ description }}", md.Meta.description);
+            html = html.Replace("{{ id }}", md.Meta.id);
+            html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
+            html = html.Replace("{{ lang }}", config.lang);
             html = html.Replace("{{ maintitle }}", config.maintitle);
+            html = html.Replace("{{ title }}", md.Meta.title);
             html = html.Replace("{{ url }}", config.url);
             html = html.Replace("{{ urltitle }}", config.urltitle);
-            html = html.Replace("{{ title }}", md.Meta.title);
-            html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
-            html = html.Replace("{{ id }}", md.Meta.id);
-            html = html.Replace("{{ description }}", md.Meta.description);
 
             // Subfolders path
             if (sub)
@@ -393,20 +394,22 @@ namespace QuickHtml
                         config.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
                     }
                 }
-
-                // Check config variables
-                config.maintitle = CheckVariable(config.maintitle);
-                if (!string.IsNullOrEmpty(config.url))
-                {
-                    var uri = new Uri(config.url);
-                    config.url = uri.AbsoluteUri;
-                    config.urltitle = config.urltitle ?? uri.Host;
-                }
             }
 
             // Set default values
+            config.lang = config.lang ?? "en";
             config.changefreq = config.changefreq ?? "yearly";
             config.priority = config.priority ?? "1.0";
+
+            // Check config variables
+            config.maintitle = SmartVariable(config.maintitle, config.lang);
+            if (!string.IsNullOrEmpty(config.url))
+            {
+                var uri = new Uri(config.url);
+                config.url = uri.AbsoluteUri;
+                config.urltitle = config.urltitle ?? uri.Host;
+            }
+            config.urltitle = SmartVariable(config.urltitle, config.lang);
 
             return config;
         }
@@ -449,27 +452,27 @@ namespace QuickHtml
             }
 
             // Check page variables
-            md.Meta.title = CheckVariable(md.Meta.title);
-            md.Meta.indextitle = CheckVariable(md.Meta.indextitle) ?? md.Meta.title;
-            md.Meta.description = CheckVariable(md.Meta.description);
+            md.Meta.title = SmartVariable(md.Meta.title, config.lang);
+            md.Meta.indextitle = SmartVariable(md.Meta.indextitle, config.lang) ?? md.Meta.title;
+            md.Meta.description = SmartVariable(md.Meta.description, config.lang);
             md.Meta.changefreq = md.Meta.changefreq ?? config.changefreq;
             md.Meta.priority = md.Meta.priority ?? config.priority;
 
             return md;
         }
 
-        public static string CheckVariable(string text)
+        public static string SmartVariable(string text, string lang)
         {
             if (text == null) return text;
 
             text = text.Replace("\"", "&quot;");
-            text = AfterMarkdown(text);
+            text = SmartMarkdown(text, lang);
             text = text.Replace("&nbsp;", " ");
 
             return text;
         }
 
-        public static string FrenchChars(string text)
+        public static string SmartChars(string text, string lang)
         {
             // Replace some characters with better equivalent
             if (text == null) return text;
@@ -477,15 +480,18 @@ namespace QuickHtml
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
             text = Regex.Replace(text, @"([\s,]*)(--)([\s,])", "$1–$3", RegexOptions.Multiline);
-            text = text.Replace("oe", "œ");
+            if (lang.StartsWith("fr"))
+                text = text.Replace("oe", "œ");
 
             return text;
         }
 
-        public static string FrenchSpaces(string text)
+        public static string SmartSpaces(string text, string lang)
         {
             // Replace space with nbsp entity before double punctuation
             // (space has to be present in markdown source text)
+            if (!lang.StartsWith("fr")) return text;
+
             text = text.Replace(" ?", "&nbsp;?");
             text = text.Replace(" ;", "&nbsp;;");
             text = text.Replace(" :", "&nbsp;:");
@@ -496,18 +502,31 @@ namespace QuickHtml
             return text;
         }
 
-        public static string FrenchQuotes(string text)
+        public static string SmartQuotes(string text, string lang)
         {
             // Replace &quot; with french quote
             // (CommonMark has replaced double quote with &quot; outside tags)
+
+            var opening = "“";
+            var closing = "”";
+            if (lang.StartsWith("fr"))
+            {
+                opening = "« ";
+                closing = " »";
+            }
+            else if (!lang.StartsWith("en"))
+            {
+                return text;
+            }
+
             var open = text.IndexOf("&quot;");
             while (open != -1)
             {
-                text = text.Substring(0, open) + "« " + text.Substring(open + 6).TrimStart();
+                text = text.Substring(0, open) + opening + text.Substring(open + 6).TrimStart();
                 var close = text.IndexOf("&quot;", open + 1);
                 if (close != -1)
                 {
-                    text = text.Substring(0, close).TrimEnd() + " »" + text.Substring(close + 6);
+                    text = text.Substring(0, close).TrimEnd() + closing + text.Substring(close + 6);
                     open = text.IndexOf("&quot;");
                 }
                 else
@@ -519,7 +538,7 @@ namespace QuickHtml
             return text;
         }
 
-        public static string MarkdownToHtml(string markdown)
+        public static string MarkdownToHtml(string markdown, string lang)
         {
             // Convert markdown to html
             var html = CommonMarkConverter.Convert(markdown, md_settings).Trim();
@@ -529,12 +548,12 @@ namespace QuickHtml
             html = html.Replace(" ", "&nbsp;");
 
             // Beautify generated html
-            html = AfterMarkdown(html);
+            html = SmartMarkdown(html, lang);
 
             return html;
         }
 
-        private static string AfterMarkdown(string html)
+        private static string SmartMarkdown(string html, string lang)
         {
             // Beautify html outside <code>...</code>, <pre>...</pre>, <script>...</script>, <x...> and </x>
             var after = new StringBuilder();
@@ -544,9 +563,9 @@ namespace QuickHtml
             {
                 // Replace special chars when they are outside tag
                 var temp = html.Substring(0, index);
-                temp = FrenchChars(temp);
-                temp = FrenchQuotes(temp);
-                temp = FrenchSpaces(temp);
+                temp = SmartChars(temp, lang);
+                temp = SmartQuotes(temp, lang);
+                temp = SmartSpaces(temp, lang);
                 after.Append(temp);
 
                 // Check end of tag block
