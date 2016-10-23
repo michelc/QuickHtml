@@ -270,8 +270,7 @@ namespace QuickHtml
                     break;
                 case ".md":
                     // Create html files from markdown files
-                    WriteHtml(config, source, destination, layout, sub);
-                    result = "WRITE";
+                    result = WriteHtml(config, source, destination, layout, sub);
                     break;
                 default:
                     if (!sub)
@@ -283,14 +282,14 @@ namespace QuickHtml
                     else
                     {
                         // All other files are not copied to dest folder
-                        result = "ALERT: *** {0} has no valid file extension ***";
+                        result = "ALERT: *** {0} with unexpected file extension ***";
                     }
                     break;
             }
             return result;
         }
 
-        private static void WriteHtml(dynamic config, string source, string destination, string layout, bool sub)
+        private static string WriteHtml(dynamic config, string source, string destination, string layout, bool sub)
         {
             // Load markdown source
             var md = LoadMarkdown(source, config);
@@ -325,6 +324,11 @@ namespace QuickHtml
             // Create html file
             destination = destination.Substring(0, destination.Length - 2) + "html";
             File.WriteAllText(destination, html);
+
+            // Check if one variable is not replaced
+            if (html.Contains("{{"))
+                return "ALERT: *** {0} with unexpected variable name ***";
+            return "write";
         }
 
         private static string WriteSitemap(dynamic config, string src_folder, string docs_folder, List<string> files)
@@ -367,7 +371,7 @@ namespace QuickHtml
             var destination = Path.Combine(docs_folder, sitemap_name.Replace(".md", ".xml"));
             File.WriteAllText(destination, xml);
 
-            return "WRITE";
+            return "write";
         }
 
         public static dynamic LoadConfig(string file)
