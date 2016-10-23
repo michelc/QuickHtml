@@ -476,8 +476,7 @@ namespace QuickHtml
 
             text = text.Replace("'", "’");
             text = text.Replace("...", "…");
-            text = text.Replace(">-- ", ">–&ensp;");
-            text = Regex.Replace(text, @"([\s,])(--)([\s,])", "$1–$3", RegexOptions.Multiline);
+            text = Regex.Replace(text, @"([\s,]*)(--)([\s,])", "$1–$3", RegexOptions.Multiline);
             text = text.Replace("oe", "œ");
 
             return text;
@@ -504,11 +503,11 @@ namespace QuickHtml
             var open = text.IndexOf("&quot;");
             while (open != -1)
             {
-                text = text.Substring(0, open) + "« " + text.Substring(open + 6).Trim();
+                text = text.Substring(0, open) + "« " + text.Substring(open + 6).TrimStart();
                 var close = text.IndexOf("&quot;", open + 1);
                 if (close != -1)
                 {
-                    text = text.Substring(0, close).Trim() + " »" + text.Substring(close + 6);
+                    text = text.Substring(0, close).TrimEnd() + " »" + text.Substring(close + 6);
                     open = text.IndexOf("&quot;");
                 }
                 else
@@ -523,7 +522,7 @@ namespace QuickHtml
         public static string MarkdownToHtml(string markdown)
         {
             // Convert markdown to html
-            var html = CommonMarkConverter.Convert(markdown, md_settings);
+            var html = CommonMarkConverter.Convert(markdown, md_settings).Trim();
 
             // Revert nbsp chars to entities
             // (CommonMark has replaced nbsp entities with nbsp chars)
@@ -563,7 +562,8 @@ namespace QuickHtml
                 }
             }
 
-            return after.ToString().Trim();
+            html = after.ToString().Trim().Replace(">– ", ">–&ensp;");
+            return html;
         }
 
         private static int StartOfTag(string html)
@@ -600,7 +600,7 @@ namespace QuickHtml
                     var end = tag == "" ? ">" : "</" + tag + ">";
                     var index = html.IndexOf(end);
                     if (index != -1)
-                        index += tag.Length;
+                        index += end.Length;
                     return index;
                 }
             }
