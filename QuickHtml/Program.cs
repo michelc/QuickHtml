@@ -333,7 +333,7 @@ namespace QuickHtml
             var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name), config);
 
             // Check site url
-            if (string.IsNullOrEmpty(config.url)) return "ALERT";
+            if (string.IsNullOrEmpty(config.url)) return "ALERT: *** {0} with no config.url setting ***";
 
             // Build url list
             var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
@@ -688,6 +688,8 @@ namespace QuickHtml
         private StreamWriter log_writer;
         private string log_buffer = "";
         private DateTime start;
+        private int errors = 0;
+        private int alerts = 0;
 
         public QuickLog()
         {
@@ -715,6 +717,9 @@ namespace QuickHtml
                 echo = string.Format("{0}: {1}", action, detail);
             }
 
+            if (echo.StartsWith("ERROR")) errors++;
+            if (echo.StartsWith("ALERT")) alerts++;
+
             Console.WriteLine(echo);
 
             log_buffer += echo;
@@ -728,9 +733,17 @@ namespace QuickHtml
 
         public void Close()
         {
-            var duration = Convert.ToInt32(DateTime.Now.Subtract(start).TotalSeconds).ToString();
+            var duration = Convert.ToInt32(DateTime.Now.Subtract(start).TotalSeconds);
+            var message = string.Format("Site built in {0} seconds ({1} alerts and {2} errors)", duration, alerts, errors);
+            message = message.Replace("1 alerts", "1 alert")
+                             .Replace("1 errors", "1 error")
+                             .Replace("0 alerts", "")
+                             .Replace("0 errors", "")
+                             .Replace("( and ", "(")
+                             .Replace(" and )", ")")
+                             .Replace("()", "");
             Trace("---");
-            Trace("Site built in {0} seconds.", duration);
+            Trace(message);
             try
             {
                 if (log_writer != null) log_writer.Close();
