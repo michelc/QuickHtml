@@ -326,6 +326,7 @@ namespace QuickHtml
             // Remove empty content
             html = Regex.Replace(html, "\\s*<meta name=\"description\" content=\"\">", "", RegexOptions.Multiline);
             html = Regex.Replace(html, "\\s*<meta name=\"keywords\" content=\"\">", "", RegexOptions.Multiline);
+            html = html.Replace(" id=\"\"", "");
 
             // Create html file
             destination = destination.Substring(0, destination.Length - 2) + "html";
