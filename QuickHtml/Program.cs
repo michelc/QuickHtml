@@ -26,6 +26,7 @@ namespace QuickHtml
             if (Debugger.IsAttached)
             {
                 args = new[] { @"\MVC\docteur-francus.eu.org" };
+                args = new[] { @"\MVC\saint-privat.eu.org" };
             }
 
             // Echo
@@ -506,9 +507,9 @@ namespace QuickHtml
             return text;
         }
 
-        public static string SmartQuotes(string text, string lang)
+        public static string SmartQuotes(string text, string lang, string previous)
         {
-            // Replace &quot; with french quote
+            // Replace &quot; with opening and closing quotes
             // (CommonMark has replaced double quote with &quot; outside tags)
 
             var opening = "“";
@@ -521,6 +522,15 @@ namespace QuickHtml
             else if (!lang.StartsWith("en"))
             {
                 return text;
+            }
+
+            // If previous text ends with an opening quote,
+            // we must first add the closing quote
+            if (previous.LastIndexOf(opening.Trim()) > previous.LastIndexOf(closing.Trim()))
+            {
+                var close = text.IndexOf("&quot;");
+                if (close != -1)
+                    text = text.Substring(0, close).TrimEnd() + closing + text.Substring(close + 6);
             }
 
             var open = text.IndexOf("&quot;");
@@ -568,7 +578,8 @@ namespace QuickHtml
                 // Replace special chars when they are outside tag
                 var temp = html.Substring(0, index);
                 temp = SmartChars(temp, lang);
-                temp = SmartQuotes(temp, lang);
+                if (temp.Contains("&quot;"))
+                    temp = SmartQuotes(temp, lang, after.ToString());
                 temp = SmartSpaces(temp, lang);
                 after.Append(temp);
 
