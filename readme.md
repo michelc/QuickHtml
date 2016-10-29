@@ -194,8 +194,8 @@ folder to generate the `docs` content.
 * Do not copy restricted files.
 
 Static files are copied when:
-* they have a valid extension: ".css", ".html", ".ico", ".jpg", ".js", ".pdf",
-".png", ".txt" or ".xml",
+* they have a valid extension: ".css", ".gif", ".html", ".ico", ".jpg", ".js",
+".pdf", ".png", ".txt" or ".xml",
 * they are located in the `src` root, whatever extension they have.
 
 All other files are restricted files and are not copied to the `docs` folder.

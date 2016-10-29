@@ -257,6 +257,7 @@ namespace QuickHtml
             switch (f.Extension)
             {
                 case ".css":
+                case ".gif":
                 case ".html":
                 case ".ico":
                 case ".jpg":
