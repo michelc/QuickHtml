@@ -84,6 +84,7 @@ namespace QuickHtml
                 System.Threading.Thread.Sleep(10);
             }
             catch { }
+            log.Trace("  dir", "/*.*");
 
             // Load config file
             var config_path = Path.Combine(src_folder, config_name);
