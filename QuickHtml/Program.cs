@@ -753,8 +753,8 @@ namespace QuickHtml
 
         public void Close()
         {
-            var duration = Convert.ToInt32(DateTime.Now.Subtract(start).TotalSeconds);
-            var message = string.Format("Site built in {0} seconds ({1} alerts and {2} errors)", duration, alerts, errors);
+            var duration = DateTime.Now.Subtract(start).TotalSeconds;
+            var message = string.Format("Site built in {0:N2} seconds ({1} alerts and {2} errors)", duration, alerts, errors);
             message = message.Replace("1 alerts", "1 alert")
                              .Replace("1 errors", "1 error")
                              .Replace("0 alerts", "")
