@@ -607,6 +607,7 @@ namespace QuickHtml
         private static string SmartMarkdown(string html, string lang)
         {
             // Beautify html outside <code>...</code>, <pre>...</pre>, <script>...</script>, <x...> and </x>
+            if (lang == "none") return html;
             var after = new StringBuilder();
             html += "<";
             var index = StartOfTag(html);
