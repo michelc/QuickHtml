@@ -172,13 +172,26 @@ The sitemap template uses 3 "variables" defined in `config.yml`:
   yearly by default
 * `{{ priority }}` for page priority: value between 0.0 to 1.0 (1.0 by default)
 
-If `{{ url }}` don't exist in `config.yml`, the sitemap is not created.
+If `{{ url }}` does not exist in `config.yml`, the sitemap is not created.
 
 Variables `changefreq` and `priority` can also be defined at the page level to
 accept values specific to a page.
 
 The 2 variables `{{ loc }}` and `{{ lastmod }}` are automatically set by
 QuickHtml.
+
+### robots.md
+
+QuickHtml can generate a "robots.txt" file in the `docs` folder when your `src`
+folder a file named "robots.md", with the following template:
+
+```
+User-agent: *
+Sitemap: {{ url }}sitemap.xml
+```
+
+This template accepts only the `{{ url }}` variables defined in `config.yml`. If
+this variable does not exist, the robots file is not created.
 
 
 ## Using QuickHtml

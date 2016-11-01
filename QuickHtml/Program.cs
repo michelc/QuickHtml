@@ -15,6 +15,7 @@ namespace QuickHtml
         public const string config_name = "config.yml";
         public const string layout_name = "layout.html";
         public const string sitemap_name = "sitemap.md";
+        public const string robots_name = "robots.md";
         public static CommonMarkSettings md_settings;
 
         public const string log_file = "qh.log";
@@ -276,7 +277,10 @@ namespace QuickHtml
                     break;
                 case ".md":
                     // Create html files from markdown files
-                    result = WriteHtml(config, source, destination, layout, sub);
+                    if ((sub == false) && (source.EndsWith(robots_name)))
+                        result = WriteRobots(config, source, destination);
+                    else
+                        result = WriteHtml(config, source, destination, layout, sub);
                     break;
                 default:
                     if (!sub)
@@ -342,38 +346,60 @@ namespace QuickHtml
             return "write";
         }
 
+        private static string WriteRobots(dynamic config, string robots_path, string destination)
+        {
+            // Load robots.md template
+            var md = LoadMarkdown(robots_path, config);
+
+            // Check site url
+            if (string.IsNullOrEmpty(config.url)) return "ALERT: *** {0} with no config.url setting ***";
+
+            //
+            var content = md.Body.Replace("{{ url }}", config.url);
+
+            // Create robots.txt file
+            destination = destination.Substring(0, destination.Length - 2) + "txt";
+            File.WriteAllText(destination, content);
+
+            return "write";
+        }
+
         private static string WriteSitemap(dynamic config, string src_folder, string docs_folder, List<string> files)
         {
-            // Load markdown sitemap
+            // Load sitemap.md template
             var sitemap_path = Path.Combine(src_folder, sitemap_name);
             var md = LoadMarkdown(sitemap_path, config);
 
             // Check site url
             if (string.IsNullOrEmpty(config.url)) return "ALERT: *** {0} with no config.url setting ***";
 
+            // Full path for robots template
+            var robots_path = Path.Combine(src_folder, robots_name);
+
             // Build url list
             var template = new Regex(@"\s*<url>(.*?)</url>", RegexOptions.Singleline).Match(md.Body).Groups[0].Value;
             var urls = new List<string>();
             foreach (var file in files.Where(f => f.EndsWith(".md")))
             {
-                if (file != sitemap_path)
-                {
-                    // Set url location
-                    var loc = ShortName(file, src_folder).Substring(1);
-                    loc = config.url + loc.Substring(0, loc.Length - 2) + "html";
-                    loc = loc.Replace("/index.html", "/");
-                    // Set url last modification
-                    var f = new FileInfo(file);
-                    var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
-                    // Get change frequency and priority
-                    var page = LoadMarkdown(file, config);
-                    // Add url
-                    var url = template.Replace("{{ loc }}", loc)
-                                      .Replace("{{ lastmod }}", lastmod)
-                                      .Replace("{{ changefreq }}", page.Meta.changefreq)
-                                      .Replace("{{ priority }}", page.Meta.priority);
-                    urls.Add(url);
-                }
+                // Skip specific templates
+                if (file == sitemap_path) continue;
+                if (file == robots_path) continue;
+
+                // Set url location
+                var loc = ShortName(file, src_folder).Substring(1);
+                loc = config.url + loc.Substring(0, loc.Length - 2) + "html";
+                loc = loc.Replace("/index.html", "/");
+                // Set url last modification
+                var f = new FileInfo(file);
+                var lastmod = f.LastWriteTimeUtc.ToString("yyyy-MM-dd").ToString();
+                // Get change frequency and priority
+                var page = LoadMarkdown(file, config);
+                // Add url
+                var url = template.Replace("{{ loc }}", loc)
+                                    .Replace("{{ lastmod }}", lastmod)
+                                    .Replace("{{ changefreq }}", page.Meta.changefreq)
+                                    .Replace("{{ priority }}", page.Meta.priority);
+                urls.Add(url);
             }
 
             // Set xml content
