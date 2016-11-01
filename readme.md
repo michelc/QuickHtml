@@ -87,13 +87,14 @@ This "variables" are used to configure your website:
 * `{{ priority }}` is used to create `sitemap.xml`.
 
 `{{ url }}` define the exact address of your website, like
-"https://www.my-site.com/" or "http://example.org/". This information is
-mandatory when QuickHtml need to create a sitemap.
+"https://www.my-site.com/", "http://example.org/" or "http://example.org/test/".
+This information is mandatory when QuickHtml need to create a sitemap or a
+robots.txt file.
 
 `{{ urltitle }}` is a short text generally used in the footer of each page to
 link to your site. It can be your name, a pretty title, or whatever you want. By
-default, QuickHtml will use the "domain" of the URL, like "www.my-site.com" or
-"example.org".
+default, QuickHtml will use a short text from the URL, like "www.my-site.com",
+"example.org" or "example.org/test".
 
 ### layout.html
 

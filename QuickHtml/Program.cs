@@ -444,7 +444,12 @@ namespace QuickHtml
             {
                 var uri = new Uri(config.url);
                 config.url = uri.AbsoluteUri;
-                config.urltitle = config.urltitle ?? uri.Host;
+                if (!config.url.EndsWith("/")) config.url += "/";
+                if (string.IsNullOrEmpty(config.urltitle))
+                {
+                    config.urltitle = config.url.Replace("http://", "").Replace("https://", "");
+                    config.urltitle = config.urltitle.Substring(0, config.urltitle.Length - 1);
+                }
             }
             config.urltitle = SmartVariable(config.urltitle, config.lang);
 
