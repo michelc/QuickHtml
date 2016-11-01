@@ -98,6 +98,9 @@ namespace QuickHtml
             md_settings = CommonMarkSettings.Default.Clone();
             md_settings.AdditionalFeatures = CommonMarkAdditionalFeatures.StrikethroughTilde;
 
+            // Full path for sitemap template
+            var sitemap_path = Path.Combine(src_folder, sitemap_name);
+
             // Copy all files
             var files = GetAllFiles(src_folder);
             files = CheckFiles(files);
@@ -123,13 +126,13 @@ namespace QuickHtml
                 }
 
                 // Omit config.yml
-                if (file.EndsWith(config_name))
+                if (file == config_path)
                 {
                     continue;
                 }
 
                 // Omit sitemap.md
-                if (file.EndsWith(sitemap_name))
+                if (file == sitemap_path)
                 {
                     sitemap = true;
                     continue;
