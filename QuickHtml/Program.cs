@@ -434,7 +434,8 @@ namespace QuickHtml
             }
 
             // Set default values
-            config.lang = config.lang ?? "en";
+            config.lang = (config.lang ?? "en").ToLower();
+            if (config.lang == "none") config.lang = "";
             config.changefreq = config.changefreq ?? "yearly";
             config.priority = config.priority ?? "1.0";
 
@@ -607,7 +608,7 @@ namespace QuickHtml
         private static string SmartMarkdown(string html, string lang)
         {
             // Beautify html outside <code>...</code>, <pre>...</pre>, <script>...</script>, <x...> and </x>
-            if (lang == "none") return html;
+            if (lang == "") return html;
             var after = new StringBuilder();
             html += "<";
             var index = StartOfTag(html);

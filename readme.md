@@ -72,6 +72,7 @@ This file contains all the site settings.
 
 ```
 maintitle: My Web Site
+lang: en
 url: https://www.my-site.com/
 urltitle: ~ www.My-Site.Com ~
 changefreq: monthly
@@ -81,6 +82,7 @@ priority: 1.0
 This "variables" are used to configure your website:
 
 * `{{ maintitle }}` is the general title of your website,
+* `{{ lang }}` is the language of your content,
 * `{{ url }}` is the URL of your website,
 * `{{ urltitle }}` is a title to link to your site,
 * `{{ changefreq }}` is used to create `sitemap.xml`,
@@ -102,7 +104,7 @@ This a pure html file which contains the template for all the pages of your
 website. Inside this html code, you can use "variables" to personalize the
 content of the final page.
 
-You can use the 5 general variables from `config.yml` and 4 more variables
+You can use the 6 general variables from `config.yml` and 4 more variables
 specific to each page:
 
 * `{{ title }}` define the current page title,
@@ -191,8 +193,27 @@ User-agent: *
 Sitemap: {{ url }}sitemap.xml
 ```
 
-This template accepts only the `{{ url }}` variables defined in `config.yml`. If
-this variable does not exist, the robots file is not created.
+This template accepts only the `{{ url }}` variables as your website URL. If
+this variable does not exist in `config.yml`, the robots file is not created.
+
+### config.lang
+
+The `{{ lang }}` variable in `config.yml` defines the language of your website.
+
+This setting accepts one single value in the format defined in the [Tags for
+Identifying Languages (BCP47)](http://www.ietf.org/rfc/bcp/bcp47.txt) IETF
+document. The default value is `en`.
+
+This variable can be used to define the `lang` attribute of the `html` element
+in your `layout.html` template:
+
+```
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+  <head>
+```
+
+This value is also used to "smartify" your html, unless it contains "none".
 
 
 ## Using QuickHtml
