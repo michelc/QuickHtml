@@ -345,7 +345,8 @@ namespace QuickHtml
         private static string WriteSitemap(dynamic config, string src_folder, string docs_folder, List<string> files)
         {
             // Load markdown sitemap
-            var md = LoadMarkdown(Path.Combine(src_folder, sitemap_name), config);
+            var sitemap_path = Path.Combine(src_folder, sitemap_name);
+            var md = LoadMarkdown(sitemap_path, config);
 
             // Check site url
             if (string.IsNullOrEmpty(config.url)) return "ALERT: *** {0} with no config.url setting ***";
@@ -355,7 +356,7 @@ namespace QuickHtml
             var urls = new List<string>();
             foreach (var file in files.Where(f => f.EndsWith(".md")))
             {
-                if (!file.EndsWith(sitemap_name))
+                if (file != sitemap_path)
                 {
                     // Set url location
                     var loc = ShortName(file, src_folder).Substring(1);
