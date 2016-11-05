@@ -338,7 +338,8 @@ namespace QuickHtml
 
             // Create html file
             destination = destination.Substring(0, destination.Length - 2) + "html";
-            File.WriteAllText(destination, html);
+            content = html.Replace("&#123;&#123; ", "{{ ");
+            File.WriteAllText(destination, content);
 
             // Check if one variable is not replaced
             if (html.Contains("{{"))
@@ -628,7 +629,14 @@ namespace QuickHtml
                 if (index != -1)
                 {
                     // Get tag block as it
-                    after.Append(html.Substring(0, index));
+                    temp = html.Substring(0, index);
+                    // Avoid variable substition in code blocks
+                    // by encoding variable open curly braces
+                    if (temp.StartsWith("<code"))
+                        temp = temp.Replace("{{ ", "&#123;&#123; ");
+                    else if (temp.StartsWith("<pre"))
+                        temp = temp.Replace("{{ ", "&#123;&#123; ");
+                    after.Append(temp);
                     html = html.Substring(index);
                     // Check for next tag block
                     index = StartOfTag(html);
