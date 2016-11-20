@@ -723,6 +723,10 @@ namespace QuickHtml
 
         public void AddMeta(string key_value)
         {
+            // Comments
+            key_value = key_value.Trim();
+            if (key_value.StartsWith("#")) return;
+
             // Invalid data
             var split = key_value.IndexOf(": ");
             if (split <= 0) return;
