@@ -71,17 +71,17 @@ content from the `src` folder.
 This file contains all the site settings.
 
 ```
-maintitle: My Web Site
-lang: en
-url: https://www.my-site.com/
-urltitle: ~ www.My-Site.Com ~
-changefreq: monthly
+sitetitle: "My Web Site"
+lang: "en"
+url: "https://www.my-site.com/"
+urltitle: "~ www.My-Site.Com ~"
+changefreq: "monthly"
 priority: 1.0
 ```
 
 This "variables" are used to configure your website:
 
-* `{{ maintitle }}` is the general title of your website,
+* `{{ sitetitle }}` is the general title of your website,
 * `{{ lang }}` is the language of your content,
 * `{{ url }}` is the URL of your website,
 * `{{ urltitle }}` is a title to link to your site,
@@ -109,7 +109,7 @@ specific to each page:
 
 * `{{ title }}` define the current page title,
 * `{{ description }}` is the content for the description meta header,
-* `{{ indextitle }}` should be a title for the index page in the current folder,
+* `{{ alttitle }}` should be a title for the index page in the current folder,
 * `{{ id }}` can be used to identify the page.
 
 All variables will be replaced with actual values when QuickHtml will convert
@@ -124,8 +124,8 @@ header where you can define the values for all variables.
 
 ```
 ---
-title: Welcome
-id: home
+title: "Welcome"
+id: "home"
 ---
 
 ## {{ title }}
@@ -143,8 +143,8 @@ template.
 
 * If you don't define a variable but use it in `layout.html`, an empty value
 will be used and no error occurs.
-* If you don't define the `indextitle` variable but use it, the `title` value
-will be used to replace it.
+* If you don't define the `alttitle` variable but use it, the `title` value will
+be used to replace it.
 
 
 ## Misc
