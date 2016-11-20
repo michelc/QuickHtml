@@ -425,12 +425,7 @@ namespace QuickHtml
                 // Parse file content
                 foreach (var line in lines)
                 {
-                    var text = line.Trim();
-                    var split = text.IndexOf(": ");
-                    if (split != -1)
-                    {
-                        config.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
-                    }
+                    config.AddMeta(line);
                 }
             }
 
@@ -487,7 +482,7 @@ namespace QuickHtml
                         if (text == "---")
                             meta++;
                         else
-                            md.AddMeta(text);
+                            md.Meta.AddMeta(text);
                         break;
                     default:
                         md.AddLine(line);
@@ -715,14 +710,6 @@ namespace QuickHtml
             if (this.Body != "") this.Body += Environment.NewLine;
             this.Body += line;
         }
-
-        public void AddMeta(string text)
-        {
-            var split = text.IndexOf(": ");
-            if (split <= 0) return;
-
-            this.Meta.Add(text.Substring(0, split), text.Substring(split + 2).Trim());
-        }
     }
 
     public class QuickDynamic : DynamicObject
@@ -731,6 +718,31 @@ namespace QuickHtml
 
         public void Add(string key, object value)
         {
+            this.list[key] = value;
+        }
+
+        public void AddMeta(string key_value)
+        {
+            // Invalid data
+            var split = key_value.IndexOf(": ");
+            if (split <= 0) return;
+
+            // Split key and value
+            var key = key_value.Substring(0, split).Trim();
+            var value = key_value.Substring(split + 2).Trim();
+
+            // Remove surrounding quotes
+            if (value.StartsWith("\""))
+            {
+                if (value.EndsWith("\""))
+                {
+                    value = value.Substring(1, value.Length - 2);
+                    // Unescape quotes
+                    value = value.Replace("\\\"", "\"");
+                }
+            }
+
+            // Add key/value data
             this.list[key] = value;
         }
 
