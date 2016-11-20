@@ -314,10 +314,12 @@ namespace QuickHtml
             {
                 html = html.Replace("{{ description }}", md.Meta.description);
                 html = html.Replace("{{ id }}", md.Meta.id);
-                html = html.Replace("{{ indextitle }}", md.Meta.indextitle);
+                html = html.Replace("{{ alttitle }}", md.Meta.alttitle);
                 html = html.Replace("{{ lang }}", config.lang);
-                html = html.Replace("{{ maintitle }}", config.maintitle);
+                html = html.Replace("{{ sitetitle }}", config.sitetitle);
+                html = html.Replace("{{ site.title }}", config.sitetitle);
                 html = html.Replace("{{ title }}", md.Meta.title);
+                html = html.Replace("{{ page.title }}", md.Meta.title);
                 html = html.Replace("{{ url }}", config.url);
                 html = html.Replace("{{ urltitle }}", config.urltitle);
                 if (!html.Contains("{{")) break;
@@ -436,7 +438,7 @@ namespace QuickHtml
             config.priority = config.priority ?? "1.0";
 
             // Check config variables
-            config.maintitle = SmartVariable(config.maintitle, config.lang);
+            config.sitetitle = SmartVariable(config.sitetitle, config.lang);
             if (!string.IsNullOrEmpty(config.url))
             {
                 var uri = new Uri(config.url);
@@ -492,7 +494,7 @@ namespace QuickHtml
 
             // Check page variables
             md.Meta.title = SmartVariable(md.Meta.title, config.lang);
-            md.Meta.indextitle = SmartVariable(md.Meta.indextitle, config.lang) ?? md.Meta.title;
+            md.Meta.alttitle = SmartVariable(md.Meta.alttitle, config.lang) ?? md.Meta.title;
             md.Meta.description = SmartVariable(md.Meta.description, config.lang);
             md.Meta.changefreq = md.Meta.changefreq ?? config.changefreq;
             md.Meta.priority = md.Meta.priority ?? config.priority;
