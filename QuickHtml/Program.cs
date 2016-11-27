@@ -141,7 +141,9 @@ namespace QuickHtml
 
                 // Copy file from src to docs
                 var destination = file.Replace(src_folder, docs_folder);
-                var sub = (src_dir != src_folder);
+                var sub = src_dir.Substring(src_folder.Length);
+                if (sub != "")
+                    sub = new string('/', sub.Split('\\').Length - 1).Replace("/", "../");
                 var result = CopyFile(config, file, destination, layout, sub);
 
                 // Trace file copy/build
@@ -254,7 +256,7 @@ namespace QuickHtml
             return list;
         }
 
-        static string CopyFile(dynamic config, string source, string destination, string layout, bool sub)
+        static string CopyFile(dynamic config, string source, string destination, string layout, string sub)
         {
             if (source.EndsWith("!!")) return "   no";
             var result = "";
@@ -277,13 +279,13 @@ namespace QuickHtml
                     break;
                 case ".md":
                     // Create html files from markdown files
-                    if ((sub == false) && (source.EndsWith(robots_name)))
+                    if ((sub == "") && (source.EndsWith(robots_name)))
                         result = WriteRobots(config, source, destination);
                     else
                         result = WriteHtml(config, source, destination, layout, sub);
                     break;
                 default:
-                    if (!sub)
+                    if (sub == "")
                     {
                         // Copy all files from src root
                         File.Copy(source, destination);
@@ -299,7 +301,7 @@ namespace QuickHtml
             return result;
         }
 
-        private static string WriteHtml(dynamic config, string source, string destination, string layout, bool sub)
+        private static string WriteHtml(dynamic config, string source, string destination, string layout, string sub)
         {
             // Load markdown source
             var md = LoadMarkdown(source, config);
@@ -326,12 +328,9 @@ namespace QuickHtml
             }
 
             // Subfolders path
-            if (sub)
-            {
-                html = html.Replace(" href=\"./css/", " href=\"./../css/");
-                html = html.Replace(" src=\"./js/", " src=\"./../js/");
-                html = html.Replace(" src=\"./images/", " src=\"./../images/");
-            }
+            html = html.Replace(" href=\"./", " href=\"./" + sub);
+            html = html.Replace(" src=\"./", " src=\"./" + sub);
+            html = html.Replace(" srcset=\"./", " srcset=\"./" + sub);
 
             // Remove empty content
             html = Regex.Replace(html, "\\s*<meta name=\"description\" content=\"\">", "", RegexOptions.Multiline);

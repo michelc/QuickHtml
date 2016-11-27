@@ -25,7 +25,7 @@ Project
 |   |-- layout.html
 |   |-- page1.md
 |   |-- page2.md
-|   |-- robots.txt
+|   |-- robots.md
 |   ·-- sitemap.md
 |-- tools
 |   ·-- qh.bat
@@ -57,9 +57,8 @@ This folder must have a file with the name `layout.html`:
 Then you have to create one markdown file for each page you want to publish in
 your generated site. This markdown files can be nested in subfolders.
 
-You can also have "static" files in the `src` folder (like "flyer.pdf",
-"favicon.ico", "robots.txt" and "sitemap.xml"). They will be copied when
-QuickHtml will generate the final site.
+You can also have "static" files in the `src` folder (like "flyer.pdf" or
+"favicon.ico"). They will be copied when QuickHtml will generate the final site.
 
 ### tools folder
 
