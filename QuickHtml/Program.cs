@@ -27,7 +27,6 @@ namespace QuickHtml
             if (Debugger.IsAttached)
             {
                 args = new[] { @"\MVC\docteur-francus.eu.org" };
-                args = new[] { @"\MVC\saint-privat.eu.org" };
             }
 
             // Echo
@@ -475,7 +474,6 @@ namespace QuickHtml
                         else if (text != "")
                         {
                             meta = 2;
-                            md.Meta.title = Path.GetFileNameWithoutExtension(file);
                             md.AddLine(line);
                         }
                         break;
@@ -489,6 +487,14 @@ namespace QuickHtml
                         md.AddLine(line);
                         break;
                 }
+            }
+
+            // Default page title
+            if (md.Meta.title == null)
+            {
+                md.Meta.title = Path.GetFileNameWithoutExtension(file);
+                var titles = new Regex("^# (.*?)$", RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(md.Body);
+                if (titles.Count == 1) md.Meta.title = titles[0].ToString().Substring(2).Trim();
             }
 
             // Check page variables
