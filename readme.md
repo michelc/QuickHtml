@@ -145,6 +145,10 @@ will be used and no error occurs.
 * If you don't define the `alttitle` variable but use it, the `title` value will
 be used to replace it.
 
+Note: to insert a `<br />` break tag, you can end a line with two or more spaces
+(Markdown way) or with two or more spaces followed by a tilde if your editor
+trim trailing whitespaces.
+
 
 ## Misc
 
