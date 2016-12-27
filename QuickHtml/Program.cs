@@ -605,6 +605,10 @@ namespace QuickHtml
             // Beautify generated html
             html = SmartMarkdown(html, lang);
 
+            // Specific old french blockquote
+            html = html.Replace("&lt;&lt; ", "«&nbsp;");
+            html = html.Replace(" &gt;&gt;", "&nbsp;»");
+
             return html;
         }
 
