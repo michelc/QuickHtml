@@ -719,8 +719,6 @@ namespace QuickHtml
         public void AddLine(string line)
         {
             if (this.Body != "") this.Body += Environment.NewLine;
-            if (line.EndsWith("  ~"))
-                line = line.Substring(0, line.Length - 3).TrimEnd() + "  ";
             this.Body += line;
         }
     }
