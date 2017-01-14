@@ -145,6 +145,10 @@ will be used and no error occurs.
 * If you don't define the `alttitle` variable but use it, the `title` value will
 be used to replace it.
 
+Inspired from [Pandoc](http://pandoc.org/MANUAL.html#superscripts-and-subscripts),
+QuickHtml converts "`...^xyz^...`" to "`...<sup>xyz</sup>...`", although it's
+not a CommonMark feature.
+
 
 ## Misc
 

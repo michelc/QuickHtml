@@ -595,6 +595,9 @@ namespace QuickHtml
 
         public static string MarkdownToHtml(string markdown, string lang)
         {
+            // Pre-convert ^xxx^ to <sup>xxx</sup>
+            markdown = Regex.Replace(markdown, @"\^(.+?)\^", "<sup>$1</sup>", RegexOptions.Multiline);
+
             // Convert markdown to html
             var html = CommonMarkConverter.Convert(markdown, md_settings).Trim();
 
