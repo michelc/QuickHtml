@@ -612,6 +612,9 @@ namespace QuickHtml
             html = html.Replace("&lt;&lt; ", "«&nbsp;");
             html = html.Replace(" &gt;&gt;", "&nbsp;»");
 
+            // Quote with half space in front of paragraph
+            html = html.Replace("<p>«&nbsp;", "<p>«&#x202f;");
+
             return html;
         }
 
@@ -652,7 +655,8 @@ namespace QuickHtml
                 }
             }
 
-            html = after.ToString().Trim().Replace(">– ", ">–&ensp;");
+            // Dash with half space in front of dialog
+            html = after.ToString().Trim().Replace(">– ", ">–&#x202f;");
             return html;
         }
 
