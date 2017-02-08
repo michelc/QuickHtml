@@ -189,7 +189,7 @@ QuickHtml.
 ### robots.md
 
 QuickHtml can generate a "robots.txt" file in the `docs` folder when your `src`
-folder a file named "robots.md", with the following template:
+folder contains a file named "robots.md", with the following template:
 
 ```
 User-agent: *

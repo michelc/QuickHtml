@@ -615,6 +615,10 @@ namespace QuickHtml
             // Quote with half space in front of paragraph
             html = html.Replace("<p>«&nbsp;", "<p>«&#x202f;");
 
+            // Generate html5
+            html = html.Replace("<br />", "<br>");
+            html = html.Replace("<hr />", "<hr>");
+
             return html;
         }
 
