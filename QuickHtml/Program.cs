@@ -527,7 +527,10 @@ namespace QuickHtml
             text = text.Replace("...", "…");
             text = Regex.Replace(text, @"([\s,]*)(--)([\s,])", "$1–$3", RegexOptions.Multiline);
             if (lang.StartsWith("fr"))
+            {
                 text = text.Replace("oe", "œ");
+                text = text.Replace("OE", "Œ");
+            }
 
             return text;
         }
