@@ -246,3 +246,8 @@ optimized version of the png image.
 
 Once the `docs` folder is generated, you have to copy its content to your
 host space.
+
+
+## Credit
+
+* CommonMark.NET (https://github.com/Knagis/CommonMark.NET)
