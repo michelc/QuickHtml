@@ -314,7 +314,7 @@ namespace QuickHtml
 
             // Convert markdown to html
             var content = MarkdownToHtml(md.Body, config.lang);
-            var html = layout.Replace("{{ content }}", content);
+            var html = content.Contains("<html") ? content : layout.Replace("{{ content }}", content);
 
             // Variables substitition
             // (3 times in case one variable use another variable)
