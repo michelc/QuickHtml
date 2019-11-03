@@ -69,7 +69,7 @@ content from the `src` folder.
 
 This file contains all the site settings.
 
-```
+```yaml
 sitetitle: "My Web Site"
 lang: "en"
 url: "https://www.my-site.com/"
@@ -121,7 +121,7 @@ Variable names are case sensitive.
 A markdown file represents a page for you website. Each file starts with a
 header where you can define the values for all variables.
 
-```
+```markdown
 ---
 title: "Welcome"
 id: "home"
@@ -159,7 +159,7 @@ a template to generate "sitemap.xml" in the `docs` folder.
 
 A correct template to generate a standards-compliant site map should be:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -210,7 +210,7 @@ document. The default value is `en`.
 This variable can be used to define the `lang` attribute of the `html` element
 in your `layout.html` template:
 
-```
+```html
 <!DOCTYPE html>
 <html lang="{{ lang }}">
   <head>
@@ -232,15 +232,15 @@ folder to generate the `docs` content.
 * Do not copy restricted files.
 
 Static files are copied when:
-* they have a valid extension: ".css", ".gif", ".html", ".ico", ".jpg", ".js",
-".pdf", ".png", ".txt" or ".xml",
+* they have a valid extension: ".css", ".gif", ".html", ".ico", ".jpg", ".jpeg",
+".js", ".pdf", ".png", ".txt" or ".xml",
 * they are located in the `src` root, whatever extension they have.
 
 All other files are restricted files and are not copied to the `docs` folder.
 
-Note: a "png" file is not copied when there is a "jpg" file with the same name
-in the same folder. In this case, QuickHtml considers the jpeg image is the
-optimized version of the png image.
+Note: a "png" file is not copied when there is a "jpg" or "jpeg" file with the
+same name in the same folder. In this case, QuickHtml considers the jpeg image
+is the optimized version of the png image.
 
 ### Deploy website
 

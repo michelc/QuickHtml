@@ -242,7 +242,13 @@ namespace QuickHtml
             {
                 if (file.EndsWith(".png"))
                 {
-                    var jpeg = file.Substring(0, file.Length - 4) + ".jpg";
+                    var jpg = file.Substring(0, file.Length - 4) + ".jpg";
+                    if (files.Exists(f => f == jpg))
+                    {
+                        list.Add(file + "!!");
+                        continue;
+                    }
+                    var jpeg = file.Substring(0, file.Length - 4) + ".jpeg";
                     if (files.Exists(f => f == jpeg))
                     {
                         list.Add(file + "!!");
@@ -267,6 +273,7 @@ namespace QuickHtml
                 case ".html":
                 case ".ico":
                 case ".jpg":
+                case ".jpeg":
                 case ".js":
                 case ".pdf":
                 case ".png":
